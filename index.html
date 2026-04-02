@@ -1,113 +1,86 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Snake Web3 🐍</title>
+  <title>Snake Web3 AI 🐍</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "genlayer-js": "https://esm.sh/genlayer-js@latest",
+      "genlayer-js/chains": "https://esm.sh/genlayer-js@latest/chains"
+    }
+  }
+  </script>
   <style>
-    body { text-align: center; background: black; color: white; }
-    canvas { background: #111; margin-top: 20px; }
-    button { padding: 10px; margin: 10px; }
+    body { text-align: center; background: #000; color: #0f0; font-family: 'Courier New', monospace; }
+    canvas { background: #111; border: 4px solid #0f0; margin-top: 10px; }
+   .controls { margin: 20px; }
+    button { background: #0f0; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; border-radius: 5px; }
+    button:hover { background: #0a0; }
   </style>
 </head>
 <body>
+  <h1>🐍 SNAKE WEB3 AI</h1>
+  <div class="controls">
+    <button id="connectBtn">1. CONNECTER WALLET</button>
+    <button id="saveBtn">2. SAUVEGARDER SCORE (IA)</button>
+  </div>
+  <p>Score : <span id="score">0</span> | Statut : <span id="status">Déconnecté</span></p>
+  <canvas id="game" width="400" height="400"></canvas>
 
-<h1>🐍 Snake Web3</h1>
+  <script type="module">
+    import { createClient } from 'genlayer-js';
+    import { studionet } from 'genlayer-js/chains';
 
-<button onclick="startGame()">Start Game</button>
+    // CONFIGURATION : Remplace par l'adresse de ton contrat GenLayer Studio! [15, 16]
+    const CONTRACT_ADDR = "COLLE_TON_ADRESSE_ICI";
+    const client = createClient({ chain: studionet, endpoint: "https://studio.genlayer.com/api/rpc" });
 
-<p>Score: <span id="score">0</span></p>
+    let account = null;
+    let score = 0;
 
-<canvas id="game" width="400" height="400"></canvas>
+    // Connexion Wallet 
+    document.getElementById('connectBtn').onclick = async () => {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      account = accounts;
+      document.getElementById('status').innerText = "Connecté : " + account.substring(0,6) + "...";
+    };
 
-<script>
-const canvas = document.getElementById("game")
-const ctx = canvas.getContext("2d")
+    // Sauvegarde réelle sur GenLayer [4, 13]
+    document.getElementById('saveBtn').onclick = async () => {
+      if (!account) return alert("Connecte ton wallet d'abord!");
+      document.getElementById('status').innerText = "⏳ Validation IA en cours...";
+      try {
+        const tx = await client.writeContract({
+          address: CONTRACT_ADDR, functionName: "submit_score", args: [score], account: account
+        });
+        await client.waitForTransactionReceipt({ hash: tx }); // Attente du consensus [16, 4]
+        document.getElementById('status').innerText = "✅ Score validé par l'IA!";
+        alert("Succès! Ton score est gravé sur GenLayer.");
+      } catch (e) {
+        document.getElementById('status').innerText = "❌ Erreur de transaction";
+      }
+    };
 
-let snake, food, dx, dy, score, gameOver
-
-function init() {
-  snake = [{x:10,y:10}]
-  food = {x:5,y:5}
-  dx = 1
-  dy = 0
-  score = 0
-  gameOver = false
-  document.getElementById("score").innerText = score
-}
-
-document.addEventListener("keydown", e => {
-  if (e.key === "ArrowUp" && dy === 0) { dx=0; dy=-1 }
-  if (e.key === "ArrowDown" && dy === 0) { dx=0; dy=1 }
-  if (e.key === "ArrowLeft" && dx === 0) { dx=-1; dy=0 }
-  if (e.key === "ArrowRight" && dx === 0) { dx=1; dy=0 }
-})
-
-function gameLoop() {
-  if (gameOver) return
-
-  let head = {x: snake[0].x + dx, y: snake[0].y + dy}
-
-  // 💀 collision mur
-  if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
-    endGame()
-    return
-  }
-
-  // 💀 collision avec soi-même
-  for (let s of snake) {
-    if (s.x === head.x && s.y === head.y) {
-      endGame()
-      return
-    }
-  }
-
-  snake.unshift(head)
-
-  // 🍎 manger
-  if (head.x === food.x && head.y === food.y) {
-    score++
-    document.getElementById("score").innerText = score
-    eatFood()
-
-    food = {
-      x: Math.floor(Math.random()*20),
-      y: Math.floor(Math.random()*20)
-    }
-  } else {
-    snake.pop()
-  }
-
-  draw()
-}
-
-function draw() {
-  ctx.fillStyle = "black"
-  ctx.fillRect(0,0,400,400)
-
-  ctx.fillStyle = "lime"
-  snake.forEach(s => ctx.fillRect(s.x*20, s.y*20, 18, 18))
-
-  ctx.fillStyle = "red"
-  ctx.fillRect(food.x*20, food.y*20, 18, 18)
-}
-
-function endGame() {
-  gameOver = true
-  alert("💀 Game Over! Score: " + score)
-}
-
-// 🚀 Web3 simulation (sans spam popup)
-function startGame() {
-  init()
-  console.log("Game started (blockchain)")
-}
-
-function eatFood() {
-  console.log("Score saved on blockchain:", score)
-}
-
-init()
-setInterval(gameLoop, 120)
-</script>
-
+    // --- Logique du Jeu ---
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+    let snake = [{x:10,y:10}]; let food = {x:15,y:15}; let dx=0, dy=0;
+    document.addEventListener("keydown", e => {
+      if(e.key==="ArrowUp" && dy===0){dx=0;dy=-1} if(e.key==="ArrowDown" && dy===0){dx=0;dy=1}
+      if(e.key==="ArrowLeft" && dx===0){dx=-1;dy=0} if(e.key==="ArrowRight" && dx===0){dx=1;dy=0}
+    });
+    setInterval(() => {
+      if(dx===0 && dy===0) return;
+      let head = {x: snake.x + dx, y: snake.y + dy};
+      snake.unshift(head);
+      if(head.x === food.x && head.y === food.y){
+        score++; document.getElementById('score').innerText = score;
+        food = {x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20)};
+      } else { snake.pop(); }
+      ctx.fillStyle = "#111"; ctx.fillRect(0,0,400,400);
+      ctx.fillStyle = "#0f0"; snake.forEach(s => ctx.fillRect(s.x*20, s.y*20, 18, 18));
+      ctx.fillStyle = "#f00"; ctx.fillRect(food.x*20, food.y*20, 18, 18);
+    }, 150);
+  </script>
 </body>
 </html>
