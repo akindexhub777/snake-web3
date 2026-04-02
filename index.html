@@ -452,22 +452,22 @@
           });
         } catch (switchError) {
           // Si le réseau n'existe pas, on l'ajoute
-          if (switchError.code === 4902) {
-            await window.ethereum.request({
-              method: 'wallet_addEthereumChain',
-              params: [{
-                chainId: targetChainId,
-                chainName: 'GenLayer Studionet',
-                rpcUrls: ['https://studio.genlayer.com/api'],
-                nativeCurrency: { name: 'GEN', symbol: 'GEN', decimals: 18 },
-                blockExplorerUrls: null,
-              }],
-            });
-          } else {
-            throw switchError;
-          }
-        }
-      }
+          //if (switchError.code === 4902) {
+            //await window.ethereum.request({
+             // method: 'wallet_addEthereumChain',
+              //params: [{
+               // chainId: targetChainId,
+                //chainName: 'GenLayer Studionet',
+               // rpcUrls: ['https://studio.genlayer.com/api'],
+               // nativeCurrency: { name: 'GEN', symbol: 'GEN', decimals: 18 },
+               // blockExplorerUrls: null,
+             // }],
+           // });
+        //  } else {
+          //  throw switchError;
+        //  }
+       // }
+     // }
 
       // Mettre à jour l'affichage
       document.getElementById('walletAddr').textContent =
