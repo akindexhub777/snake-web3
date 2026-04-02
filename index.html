@@ -1,182 +1,156 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Snake Web3 🐍</title>
+  <title>Snake Web3 AI 🐍</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "genlayer-js": "https://esm.sh/genlayer-js@latest",
+      "genlayer-js/chains": "https://esm.sh/genlayer-js@latest/chains"
+    }
+  }
+  </script>
   <style>
-    body { text-align: center; background: black; color: white; font-family: Arial; }
-    canvas { background: #111; margin-top: 20px; }
-    button { padding: 10px; margin: 10px; cursor: pointer; }
+    body { text-align: center; background: #000; color: #0f0; font-family: 'Courier New', monospace; margin: 0; padding: 20px; }
+    canvas { background: #111; border: 4px solid #0f0; box-shadow: 0 0 20px #0f0; }
+   .ui { margin: 20px; padding: 15px; border: 1px solid #333; display: inline-block; border-radius: 10px; }
+    button { background: #0f0; color: #000; border: none; padding: 12px 25px; cursor: pointer; font-weight: bold; border-radius: 5px; margin: 5px; transition: 0.3s; }
+    button:hover { background: #fff; transform: scale(1.05); }
+    #status { color: #ff0; font-weight: bold; }
   </style>
 </head>
 <body>
+  <h1>🐍 SNAKE WEB3 PRO (GenLayer)</h1>
+  
+  <div class="ui">
+    <button id="connectBtn">1. CONNECTER WALLET</button>
+    <button id="saveBtn">2. SAUVEGARDER SCORE</button>
+    <p>Score : <span id="score">0</span> | Statut : <span id="status">En attente...</span></p>
+  </div>
 
-<h1>🐍 Snake Web3</h1>
+  <br>
+  <canvas id="game" width="400" height="400"></canvas>
+  <p><i>Utilise les flèches du clavier pour diriger le serpent!</i></p>
 
-<button onclick="connectWallet()">🔗 Connect Wallet</button>
-<p id="wallet">Not connected</p>
+  <script type="module">
+    import { createClient } from 'genlayer-js';
+    import { studionet } from 'genlayer-js/chains';
 
-<button onclick="startGame()">▶️ Start Game</button>
+    // ⚠️ METS ICI L'ADRESSE DE TON CONTRAT DÉPLOYÉ DANS LE STUDIO
+    const CONTRACT_ADDR = "0x...ton_adresse_ici..."; 
+    const client = createClient({ chain: studionet, endpoint: "https://studio.genlayer.com/api/rpc" });
 
-<p>Score: <span id="score">0</span></p>
+    let account = null;
+    let score = 0;
+    let gameActive = false;
 
-<h2>🏆 Leaderboard</h2>
-<button onclick="loadLeaderboard()">Load Leaderboard</button>
-<ul id="leaderboard"></ul>
+    // --- Connexion Wallet ---
+    document.getElementById('connectBtn').onclick = async () => {
+      if (typeof window.ethereum!== 'undefined') {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        account = accounts;
+        document.getElementById('status').innerText = "Connecté : " + account.substring(0,6) + "...";
+        document.getElementById('status').style.color = "#0f0";
+      } else {
+        alert("Installe MetaMask!");
+      }
+    };
 
-<h2>💰 Reward</h2>
-<button onclick="claimReward()">Claim Reward</button>
-<p id="reward">0</p>
+    // --- Sauvegarde Blockchain ---
+    document.getElementById('saveBtn').onclick = async () => {
+      if (!account) return alert("Connecte ton wallet d'abord!");
+      document.getElementById('status').innerText = "⏳ Envoi à l'IA GenLayer...";
+      try {
+        const tx = await client.writeContract({
+          address: CONTRACT_ADDR, 
+          functionName: "submit_score", 
+          args:, 
+          account: account
+        });
+        await client.waitForTransactionReceipt({ hash: tx });
+        document.getElementById('status').innerText = "✅ Score validé on-chain!";
+      } catch (e) {
+        document.getElementById('status').innerText = "❌ Erreur de transaction";
+        console.error(e);
+      }
+    };
 
-<canvas id="game" width="400" height="400"></canvas>
+    // --- Logique du Jeu (Fixée) ---
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+    const gridSize = 20;
+    const tileCount = 20;
 
-<script>
-const canvas = document.getElementById("game")
-const ctx = canvas.getContext("2d")
+    let snake = [{x: 10, y: 10}];
+    let food = {x: 5, y: 5};
+    let dx = 0;
+    let dy = 0;
 
-let snake, food, dx, dy, score, gameOver
-let walletAddress = null
+    document.addEventListener("keydown", (e) => {
+      if (!gameActive) gameActive = true;
+      if (e.key === "ArrowUp" && dy === 0) { dx = 0; dy = -1; }
+      if (e.key === "ArrowDown" && dy === 0) { dx = 0; dy = 1; }
+      if (e.key === "ArrowLeft" && dx === 0) { dx = -1; dy = 0; }
+      if (e.key === "ArrowRight" && dx === 0) { dx = 1; dy = 0; }
+    });
 
-// 🔗 CONNECT WALLET
-async function connectWallet() {
-  if (window.ethereum) {
-    const accounts = await window.ethereum.request({
-      method: 'eth_requestAccounts'
-    })
-    walletAddress = accounts[0]
-    document.getElementById("wallet").innerText =
-      "Connected: " + walletAddress
-  } else {
-    alert("Install MetaMask or Rabby Wallet")
-  }
-}
+    function drawGame() {
+      // Calcul du mouvement
+      const head = { x: snake.x + dx, y: snake.y + dy };
+      
+      if (gameActive) {
+        // Collision murs
+        if (head.x < 0 |
 
-// 🎮 INIT
-function init() {
-  snake = [{x:10,y:10}]
-  food = {x:5,y:5}
-  dx = 1
-  dy = 0
-  score = 0
-  gameOver = false
-  document.getElementById("score").innerText = score
-}
+| head.x >= tileCount |
+| head.y < 0 |
+| head.y >= tileCount) {
+          resetGame();
+          return;
+        }
+        // Collision corps
+        if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+          resetGame();
+          return;
+        }
 
-// ▶️ START
-function startGame() {
-  if (!walletAddress) {
-    alert("Connect wallet first 🔗")
-    return
-  }
-  init()
-}
+        snake.unshift(head);
 
-// 🎮 CONTROLS
-document.addEventListener("keydown", e => {
-  if (e.key === "ArrowUp" && dy === 0) { dx=0; dy=-1 }
-  if (e.key === "ArrowDown" && dy === 0) { dx=0; dy=1 }
-  if (e.key === "ArrowLeft" && dx === 0) { dx=-1; dy=0 }
-  if (e.key === "ArrowRight" && dx === 0) { dx=1; dy=0 }
-})
+        // Manger la nourriture
+        if (head.x === food.x && head.y === food.y) {
+          score++;
+          document.getElementById('score').innerText = score;
+          food = { x: Math.floor(Math.random() * tileCount), y: Math.floor(Math.random() * tileCount) };
+        } else {
+          snake.pop();
+        }
+      }
 
-// 🎮 GAME LOOP
-function gameLoop() {
-  if (gameOver) return
+      // Dessiner le fond
+      ctx.fillStyle = "#111";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  let head = {x: snake[0].x + dx, y: snake[0].y + dy}
+      // Dessiner le serpent
+      ctx.fillStyle = "#0f0";
+      snake.forEach(s => ctx.fillRect(s.x * gridSize, s.y * gridSize, gridSize - 2, gridSize - 2));
 
-  if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
-    endGame()
-    return
-  }
-
-  for (let s of snake) {
-    if (s.x === head.x && s.y === head.y) {
-      endGame()
-      return
+      // Dessiner la nourriture
+      ctx.fillStyle = "#f00";
+      ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 2, gridSize - 2);
+      
+      setTimeout(drawGame, 150);
     }
-  }
 
-  snake.unshift(head)
-
-  if (head.x === food.x && head.y === food.y) {
-    score++
-    document.getElementById("score").innerText = score
-
-    sendScoreToBlockchain()
-
-    food = {
-      x: Math.floor(Math.random()*20),
-      y: Math.floor(Math.random()*20)
+    function resetGame() {
+      alert("Game Over! Score : " + score);
+      snake = [{x: 10, y: 10}];
+      dx = 0; dy = 0;
+      score = 0;
+      gameActive = false;
+      document.getElementById('score').innerText = score;
     }
-  } else {
-    snake.pop()
-  }
 
-  draw()
-}
-
-// 🎨 DRAW
-function draw() {
-  ctx.fillStyle = "black"
-  ctx.fillRect(0,0,400,400)
-
-  ctx.fillStyle = "lime"
-  snake.forEach(s => ctx.fillRect(s.x*20, s.y*20, 18, 18))
-
-  ctx.fillStyle = "red"
-  ctx.fillRect(food.x*20, food.y*20, 18, 18)
-}
-
-// 💀 GAME OVER
-function endGame() {
-  gameOver = true
-  alert("💀 Game Over! Score: " + score)
-}
-
-// 🔗 WEB3 SIMULATION
-function sendScoreToBlockchain() {
-  console.log("Score saved on blockchain:", score)
-}
-
-// 🏆 LEADERBOARD
-function loadLeaderboard() {
-  const fakeData = [
-    {player: "0xAAA...111", score: 10},
-    {player: "0xBBB...222", score: 7},
-    {player: "0xCCC...333", score: 5}
-  ]
-
-  const list = document.getElementById("leaderboard")
-  list.innerHTML = ""
-
-  fakeData.forEach(p => {
-    const li = document.createElement("li")
-    li.innerText = p.player + " → " + p.score
-    list.appendChild(li)
-  })
-}
-
-// 💰 REWARD
-function claimReward() {
-  if (!walletAddress) {
-    alert("Connect wallet first")
-    return
-  }
-
-  if (score < 5) {
-    alert("Score too low! Reach 5 to claim reward")
-    return
-  }
-
-  let reward = score * 10
-  document.getElementById("reward").innerText = reward
-
-  alert("🎉 Reward claimed: " + reward + " GEN (testnet)")
-}
-
-init()
-setInterval(gameLoop, 120)
-</script>
-
+    drawGame();
+  </script>
 </body>
 </html>
