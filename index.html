@@ -14,7 +14,7 @@
     body { text-align: center; background: #000; color: #0f0; font-family: 'Courier New', monospace; padding: 20px; }
     canvas { background: #111; border: 4px solid #0f0; box-shadow: 0 0 20px #0f0; margin-top: 10px; }
   .ui { margin: 20px; padding: 15px; border: 1px solid #333; display: inline-block; border-radius: 10px; background: #111; }
-    button { background: #0f0; color: #000; border: none; padding: 12px 25px; cursor: pointer; font-weight: bold; border-radius: 5px; margin: 5px; }
+    button { background: #0f0; color: #000; border: none; padding: 12px 25px; cursor: pointer; font-weight: bold; border-radius: 5px; margin: 5px; transition: 0.3s; }
     button:hover { background: #fff; }
     #status { color: #ff0; font-weight: bold; }
   </style>
@@ -28,13 +28,13 @@
   </div>
   <br>
   <canvas id="game" width="400" height="400"></canvas>
-  <p><i>Appuie sur une flèche pour commencer à jouer!</i></p>
+  <p><i>Utilise les flèches pour jouer dès que tu es connecté!</i></p>
 
   <script type="module">
     import { createClient } from 'genlayer-js';
     import { studionet } from 'genlayer-js/chains';
 
-    // Adresse de ton contrat extraite de ton image [1, 2]
+    // Adresse exacte de ton contrat (prise sur ton image) [3, 4]
     const CONTRACT_ADDR = "0x7b2dF88E33Bafa869934b3Da028eC5433eC8f101"; 
     const client = createClient({ chain: studionet, endpoint: "https://studio.genlayer.com/api/rpc" });
 
@@ -42,22 +42,22 @@
     let score = 0;
     let gameActive = false;
 
-    // Connexion au Wallet [3, 4]
+    // --- Connexion Wallet [5, 6] ---
     document.getElementById('connectBtn').onclick = async () => {
       try {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
         account = accounts;
-        document.getElementById('status').innerText = "Connecté!";
+        document.getElementById('status').innerText = "Connecté : " + account.substring(0,6) + "...";
         document.getElementById('status').style.color = "#0f0";
       } catch (e) {
-        alert("Erreur de connexion : assure-toi d'avoir MetaMask.");
+        alert("Débloque MetaMask ou autorise la connexion popup.");
       }
     };
 
-    // Sauvegarde sur GenLayer [5, 6]
+    // --- Sauvegarde Score [7, 8] ---
     document.getElementById('saveBtn').onclick = async () => {
-      if (!account) return alert("Connecte ton wallet d'abord!");
-      document.getElementById('status').innerText = "⏳ Envoi à GenLayer...";
+      if (!account) return alert("Clique d'abord sur CONNECTER WALLET!");
+      document.getElementById('status').innerText = "⏳ Envoi au réseau GenLayer...";
       try {
         const tx = await client.writeContract({
           address: CONTRACT_ADDR,
@@ -68,7 +68,7 @@
         await client.waitForTransactionReceipt({ hash: tx });
         document.getElementById('status').innerText = "✅ Score enregistré on-chain!";
       } catch (e) {
-        document.getElementById('status').innerText = "❌ Erreur transaction";
+        document.getElementById('status').innerText = "❌ Erreur : vérifie ton réseau MetaMask";
       }
     };
 
@@ -90,13 +90,6 @@
     function draw() {
       if (gameActive) {
         let head = { x: snake.x + dx, y: snake.y + dy };
-        snake.unshift(head);
-        if (head.x === food.x && head.y === food.y) {
-          score++;
-          document.getElementById('score').innerText = score;
-          food = {x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20)};
-        } else { snake.pop(); }
-        
         if (head.x < 0 |
 
 | head.x >= 20 |
@@ -104,7 +97,14 @@
 | head.y >= 20) {
             snake = [{x: 10, y: 10}]; dx = 0; dy = 0; score = 0; gameActive = false;
             document.getElementById('score').innerText = 0;
+            return setTimeout(draw, 150);
         }
+        snake.unshift(head);
+        if (head.x === food.x && head.y === food.y) {
+          score++;
+          document.getElementById('score').innerText = score;
+          food = {x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20)};
+        } else { snake.pop(); }
       }
       ctx.fillStyle = "#111"; ctx.fillRect(0,0,400,400);
       ctx.fillStyle = "#0f0"; snake.forEach(s => ctx.fillRect(s.x*20, s.y*20, 18, 18));
