@@ -3,434 +3,182 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Snake Web3 🐍</title>
+  <title>Snake Web3 PRO 🐍</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "genlayer-js": "https://esm.sh/genlayer-js@latest",
+      "genlayer-js/chains": "https://esm.sh/genlayer-js@latest/chains"
+    }
+  }
+  </script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: #0a0a0f;
-      color: #e0e0e0;
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      min-height: 100vh;
-    }
+    body { background: #0a0a0f; color: #e0e0e0; font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; min-height: 100vh; }
     h1 { color: #a78bfa; font-size: 28px; margin-bottom: 4px; }
-    .subtitle { color: #555; font-size: 12px; margin-bottom: 20px; }
-
-    .wallet-box {
-      background: #111128;
-      border: 1px solid #2d2d4e;
-      border-radius: 10px;
-      padding: 12px 20px;
-      margin-bottom: 16px;
-      text-align: center;
-      width: 100%;
-      max-width: 420px;
-    }
+   .subtitle { color: #555; font-size: 12px; margin-bottom: 20px; }
+   .wallet-box { background: #111128; border: 1px solid #2d2d4e; border-radius: 10px; padding: 12px 20px; margin-bottom: 16px; text-align: center; width: 100%; max-width: 420px; }
     #walletAddr { font-size: 11px; color: #7c3aed; word-break: break-all; margin-top: 4px; }
-
-    .stats {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-    .stat {
-      background: #111128;
-      border: 1px solid #2d2d4e;
-      border-radius: 8px;
-      padding: 10px 16px;
-      text-align: center;
-    }
-    .stat-label { font-size: 11px; color: #666; }
-    .stat-val { font-size: 20px; font-weight: bold; }
-    .stat-val.purple { color: #a78bfa; }
-    .stat-val.gold { color: #f59e0b; }
-    .stat-val.green { color: #10b981; }
-
-    canvas {
-      border: 2px solid #2d2d4e;
-      border-radius: 10px;
-      display: block;
-    }
-
-    .controls { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; justify-content: center; }
-    button {
-      padding: 9px 18px;
-      border-radius: 8px;
-      border: 1px solid #2d2d4e;
-      background: #111128;
-      color: #e0e0e0;
-      cursor: pointer;
-      font-size: 13px;
-      transition: all 0.2s;
-    }
+   .stats { display: flex; gap: 12px; margin-bottom: 12px; }
+   .stat { background: #111128; border: 1px solid #2d2d4e; border-radius: 8px; padding: 10px 16px; text-align: center; min-width: 120px; }
+   .stat-label { font-size: 11px; color: #666; }
+   .stat-val { font-size: 20px; font-weight: bold; color: #a78bfa; }
+    canvas { border: 2px solid #2d2d4e; border-radius: 10px; display: block; background: #0d0d1a; }
+   .controls { display: flex; gap: 8px; margin: 12px 0; }
+    button { padding: 10px 18px; border-radius: 8px; border: 1px solid #2d2d4e; background: #111128; color: #e0e0e0; cursor: pointer; font-size: 13px; font-weight: bold; transition: all 0.2s; }
     button:hover { background: #1e1e3f; border-color: #7c3aed; }
     button.primary { background: #7c3aed; border-color: #7c3aed; color: #fff; }
-    button.primary:hover { background: #6d28d9; }
-    button.gold { background: #92400e; border-color: #f59e0b; color: #fde68a; }
-    button.gold:hover { background: #78350f; }
-
-    #msg { font-size: 12px; color: #f59e0b; min-height: 18px; margin: 6px 0; text-align: center; }
-
-    .nft-badge {
-      display: none;
-      background: #064e3b;
-      border: 1px solid #10b981;
-      border-radius: 8px;
-      padding: 10px 20px;
-      text-align: center;
-      margin: 8px 0;
-      color: #10b981;
-      font-weight: bold;
-    }
-    .nft-badge.show { display: block; }
-
-    .leaderboard {
-      background: #111128;
-      border: 1px solid #2d2d4e;
-      border-radius: 10px;
-      padding: 12px;
-      width: 100%;
-      max-width: 420px;
-      margin-top: 12px;
-    }
-    .leaderboard h3 { font-size: 12px; color: #7c3aed; text-transform: uppercase; margin-bottom: 8px; }
-    .lb-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      padding: 4px 6px;
-      border-radius: 5px;
-      margin-bottom: 4px;
-    }
-    .lb-row:first-child { background: #2d1a4e; }
-    .lb-addr { color: #888; flex: 1; margin: 0 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .lb-score { font-weight: bold; color: #a78bfa; }
-
-    /* D-pad mobile */
-    .dpad { display: none; flex-direction: column; align-items: center; gap: 4px; margin-top: 10px; }
-    .dpad-row { display: flex; gap: 4px; }
-    .dpad button { width: 50px; height: 50px; font-size: 18px; }
-    @media (max-width: 500px) { .dpad { display: flex; } }
+    #msg { font-size: 12px; color: #f59e0b; min-height: 18px; margin: 6px 0; }
   </style>
 </head>
 <body>
 
-<h1>🐍 Snake Web3</h1>
-<p class="subtitle">Powered by GenLayer · Built for Hackathon 2026</p>
+<h1>🐍 Snake Web3 PRO</h1>
+<p class="subtitle">Powered by GenLayer Studionet</p>
 
-<!-- Wallet -->
 <div class="wallet-box">
   <div id="walletAddr">Non connecté</div>
-  <button class="primary" onclick="connectWallet()" style="margin-top:8px;width:100%">
-    🔗 Connect Wallet (MetaMask / Rabby)
-  </button>
+  <button class="primary" id="connectBtn" style="margin-top:8px;width:100%">🔗 Connecter MetaMask</button>
 </div>
 
-<!-- Stats -->
 <div class="stats">
   <div class="stat">
-    <div class="stat-label">Score</div>
-    <div class="stat-val purple" id="dispScore">0</div>
+    <div class="stat-label">Score Session</div>
+    <div class="stat-val" id="dispScore">0</div>
   </div>
   <div class="stat">
-    <div class="stat-label">High Score</div>
-    <div class="stat-val purple" id="dispHigh">0</div>
+    <div class="stat-label">Score Blockchain</div>
+    <div class="stat-val" id="chainScore">0</div>
   </div>
-  <div class="stat">
-    <div class="stat-label">Tokens 🪙</div>
-    <div class="stat-val gold" id="dispTokens">0</div>
-  </div>
-  <div class="stat">
-    <div class="stat-label">Reward</div>
-    <div class="stat-val green" id="dispReward">0</div>
-  </div>
-</div>
-
-<!-- NFT Badge -->
-<div class="nft-badge" id="nftBadge">🏆 NFT REWARD DÉBLOQUÉ — Score ≥ 10 atteint !</div>
-
-<!-- Boutons -->
-<div class="controls">
-  <button class="primary" onclick="startGame()">▶ Start</button>
-  <button onclick="pauseGame()">⏸ Pause</button>
-  <button onclick="resetGame()">↺ Reset</button>
-  <button class="gold" onclick="claimReward()">💰 Claim Reward</button>
 </div>
 
 <div id="msg">Connecte ton wallet puis appuie sur Start</div>
-
-<!-- Canvas -->
 <canvas id="game" width="400" height="400"></canvas>
 
-<!-- D-pad mobile -->
-<div class="dpad">
-  <div class="dpad-row"><button onclick="setDir(0,-1)">↑</button></div>
-  <div class="dpad-row">
-    <button onclick="setDir(-1,0)">←</button>
-    <button onclick="setDir(0,1)">↓</button>
-    <button onclick="setDir(1,0)">→</button>
-  </div>
+<div class="controls">
+  <button id="startBtn">▶ Start Game</button>
+  <button id="saveBtn">💾 Sauvegarder Score On-Chain</button>
 </div>
 
-<!-- Leaderboard -->
-<div class="leaderboard">
-  <h3>🏆 Leaderboard</h3>
-  <div id="leaderboard"><div style="font-size:12px;color:#555;text-align:center">Joue pour apparaître ici</div></div>
-</div>
+<script type="module">
+  import { createClient } from 'genlayer-js';
+  import { studionet } from 'genlayer-js/chains';
 
-<script>
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
-const GRID = 20;
-const CELL = 400 / GRID;
-
-let snake, dir, food, score, highScore, tokens, reward, nftUnlocked;
-let gameLoop, running, paused;
-let walletAddress = null;
-
-let leaderboard = JSON.parse(localStorage.getItem('snakeLB') || '[]');
-
-// ── Init ──────────────────────────────────────
-function initState() {
-  snake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
-  dir   = {x:1, y:0};
-  score = 0;
-  tokens  = parseInt(localStorage.getItem('snakeTokens') || '0');
-  highScore = parseInt(localStorage.getItem('snakeHigh')   || '0');
-  reward    = parseInt(localStorage.getItem('snakeReward') || '0');
-  nftUnlocked = localStorage.getItem('snakeNFT') === '1';
-  spawnFood();
-  updateUI();
-}
-
-function spawnFood() {
-  do {
-    food = {x: Math.floor(Math.random()*GRID), y: Math.floor(Math.random()*GRID)};
-  } while (snake.some(s => s.x===food.x && s.y===food.y));
-}
-
-// ── Game ──────────────────────────────────────
-function startGame() {
-  if (!walletAddress) { setMsg('Connecte ton wallet d\'abord !'); return; }
-  if (running) return;
-  initState();
-  running = true; paused = false;
-  clearInterval(gameLoop);
-  gameLoop = setInterval(tick, 130);
-  document.getElementById('nftBadge').classList.remove('show');
-  setMsg('');
-}
-
-function pauseGame() {
-  if (!running) return;
-  paused = !paused;
-  setMsg(paused ? '⏸ Pause — Appuie encore pour reprendre' : '');
-}
-
-function resetGame() {
-  clearInterval(gameLoop);
-  running = false; paused = false;
-  initState();
-  draw();
-  setMsg('Appuie sur Start pour jouer');
-}
-
-function tick() {
-  if (paused) return;
-  move();
-  draw();
-}
-
-function move() {
-  const head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
-
-  // Collision murs
-  if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID) { gameOver(); return; }
-  // Collision soi-même
-  if (snake.some(s => s.x===head.x && s.y===head.y)) { gameOver(); return; }
-
-  snake.unshift(head);
-
-  if (head.x===food.x && head.y===food.y) {
-    score++;
-    tokens++;
-    localStorage.setItem('snakeTokens', tokens);
-
-    if (score > highScore) {
-      highScore = score;
-      localStorage.setItem('snakeHigh', highScore);
-      updateLeaderboard();
-    }
-
-    // NFT reward
-    if (score >= 10 && !nftUnlocked) {
-      nftUnlocked = true;
-      localStorage.setItem('snakeNFT', '1');
-      document.getElementById('nftBadge').classList.add('show');
-      setMsg('🏆 NFT Reward débloqué ! Score ≥ 10');
-    }
-
-    // Vitesse augmente tous les 5 points
-    if (score % 5 === 0) {
-      clearInterval(gameLoop);
-      const spd = Math.max(60, 130 - score * 5);
-      gameLoop = setInterval(tick, spd);
-    }
-
-    spawnFood();
-    updateUI();
-  } else {
-    snake.pop();
-  }
-}
-
-function gameOver() {
-  clearInterval(gameLoop);
-  running = false;
-  updateLeaderboard();
-  setMsg('💀 Game Over ! Score : ' + score + ' | High : ' + highScore);
-  updateUI();
-}
-
-// ── Draw ──────────────────────────────────────
-function draw() {
-  ctx.clearRect(0, 0, 400, 400);
-
-  // Fond grille
-  ctx.fillStyle = '#0d0d1a';
-  ctx.fillRect(0, 0, 400, 400);
-  ctx.strokeStyle = '#1a1a2e';
-  ctx.lineWidth = 0.5;
-  for (let i = 0; i <= GRID; i++) {
-    ctx.beginPath(); ctx.moveTo(i*CELL, 0); ctx.lineTo(i*CELL, 400); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(0, i*CELL); ctx.lineTo(400, i*CELL); ctx.stroke();
-  }
-
-  // Nourriture
-  ctx.fillStyle = '#f59e0b';
-  ctx.shadowColor = '#f59e0b';
-  ctx.shadowBlur = 10;
-  ctx.beginPath();
-  ctx.arc(food.x*CELL + CELL/2, food.y*CELL + CELL/2, CELL/2 - 2, 0, Math.PI*2);
-  ctx.fill();
-  ctx.shadowBlur = 0;
-
-  // Snake
-  snake.forEach((seg, i) => {
-    const ratio = 1 - i / snake.length;
-    ctx.fillStyle = i === 0 ? '#a78bfa' : `rgba(109,40,217,${0.3 + ratio*0.6})`;
-    ctx.shadowColor = i === 0 ? '#a78bfa' : 'transparent';
-    ctx.shadowBlur = i === 0 ? 12 : 0;
-    const pad = i === 0 ? 1 : 2;
-    ctx.beginPath();
-    ctx.roundRect(seg.x*CELL + pad, seg.y*CELL + pad, CELL - pad*2, CELL - pad*2, 3);
-    ctx.fill();
+  // 1. CONFIGURATION DU CLIENT GENLAYER [1, 2]
+  const CONTRACT_ADDR = "0x8ca6C94dC761ca504fF4037a8412CC623a9Ebd76";
+  const client = createClient({ 
+    chain: studionet, 
+    endpoint: "https://studio.genlayer.com/api/rpc" 
   });
-  ctx.shadowBlur = 0;
 
-  // Score sur canvas
-  ctx.fillStyle = '#a78bfa';
-  ctx.font = 'bold 13px Arial';
-  ctx.fillText('Score: ' + score, 8, 18);
-  ctx.fillStyle = '#f59e0b';
-  ctx.fillText('🪙 ' + tokens, 8, 36);
-}
+  let account = null;
+  let score = 0;
+  let gameRunning = false;
 
-// ── Contrôles ────────────────────────────────
-function setDir(x, y) {
-  if (x===1 && dir.x===-1) return;
-  if (x===-1 && dir.x===1) return;
-  if (y===1 && dir.y===-1) return;
-  if (y===-1 && dir.y===1) return;
-  dir = {x, y};
-}
-
-document.addEventListener('keydown', e => {
-  const map = {
-    'ArrowUp': [0,-1], 'z': [0,-1],
-    'ArrowDown': [0,1], 's': [0,1],
-    'ArrowLeft': [-1,0], 'q': [-1,0],
-    'ArrowRight': [1,0], 'd': [1,0]
+  // 2. CONNEXION WALLET 
+  document.getElementById('connectBtn').onclick = async () => {
+    if (typeof window.ethereum === 'undefined') return alert("Installe MetaMask!");
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      account = accounts;
+      document.getElementById('walletAddr').innerText = account.substring(0,6) + "..." + account.substring(38) + " ✓";
+      document.getElementById('msg').innerText = "Wallet connecté! Bonne chance.";
+      syncBlockchainScore();
+    } catch (e) { console.error(e); }
   };
-  if (map[e.key]) { setDir(...map[e.key]); e.preventDefault(); }
-  if (e.key === ' ') { if (!running) startGame(); else pauseGame(); e.preventDefault(); }
-});
 
-// ── UI ────────────────────────────────────────
-function updateUI() {
-  document.getElementById('dispScore').textContent  = score;
-  document.getElementById('dispHigh').textContent   = highScore;
-  document.getElementById('dispTokens').textContent = tokens;
-  document.getElementById('dispReward').textContent = reward;
-  if (nftUnlocked) document.getElementById('nftBadge').classList.add('show');
-}
-
-function setMsg(m) { document.getElementById('msg').textContent = m; }
-
-// ── Wallet ────────────────────────────────────
-async function connectWallet() {
-  if (typeof window.ethereum === 'undefined') {
-    setMsg('MetaMask non détecté — installe MetaMask ou Rabby !');
-    return;
+  // 3. LECTURE DU SCORE (VIEW) [3, 4]
+  async function syncBlockchainScore() {
+    if (!account) return;
+    try {
+      const result = await client.readContract({
+        address: CONTRACT_ADDR,
+        functionName: "get_score",
+        args: [account]
+      });
+      document.getElementById('chainScore').innerText = result;
+    } catch (e) { console.error("Erreur lecture score", e); }
   }
-  try {
-    const accounts = await window.ethereum.request({method: 'eth_requestAccounts'});
-    walletAddress = accounts[0];
-    document.getElementById('walletAddr').textContent =
-      walletAddress.slice(0,6) + '...' + walletAddress.slice(-4) + ' ✓';
-    setMsg('Wallet connecté ! Appuie sur Start.');
-  } catch(e) {
-    setMsg('Connexion refusée.');
+
+  // 4. SAUVEGARDE DU SCORE (WRITE) [5, 3]
+  document.getElementById('saveBtn').onclick = async () => {
+    if (!account) return alert("Connecte ton wallet d'abord!");
+    document.getElementById('msg').innerText = "⏳ Enregistrement on-chain en cours...";
+    try {
+      const tx = await client.writeContract({
+        address: CONTRACT_ADDR,
+        functionName: "eat_food", 
+        args:,
+        account: account
+      });
+      await client.waitForTransactionReceipt({ hash: tx }); // Attente du consensus [6]
+      document.getElementById('msg').innerText = "✅ Score validé sur GenLayer!";
+      syncBlockchainScore();
+    } catch (e) { 
+      document.getElementById('msg').innerText = "❌ Erreur transaction.";
+      console.error(e);
+    }
+  };
+
+  // 5. LOGIQUE DU JEU SNAKE
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  let snake, dir, food;
+
+  function initGame() {
+    snake = [{x:10, y:10}, {x:9, y:10}, {x:8, y:10}];
+    dir = {x:1, y:0};
+    score = 0;
+    document.getElementById('dispScore').innerText = "0";
+    spawnFood();
   }
-}
 
-// ── Reward ────────────────────────────────────
-function claimReward() {
-  if (!walletAddress) { setMsg('Connecte ton wallet !'); return; }
-  if (score < 5) { setMsg('Score trop bas ! Atteins 5 pour claim.'); return; }
-  reward = score * 10;
-  localStorage.setItem('snakeReward', reward);
-  updateUI();
-  setMsg('🎉 ' + reward + ' GEN tokens claimés (testnet) !');
-}
-
-// ── Leaderboard ───────────────────────────────
-function updateLeaderboard() {
-  const addr = walletAddress ? walletAddress.slice(0,6)+'...'+walletAddress.slice(-4) : 'Joueur';
-  const entry = leaderboard.find(e => e.addr === addr);
-  if (!entry) leaderboard.push({addr, score: highScore});
-  else if (highScore > entry.score) entry.score = highScore;
-  leaderboard.sort((a,b) => b.score - a.score);
-  leaderboard = leaderboard.slice(0, 5);
-  localStorage.setItem('snakeLB', JSON.stringify(leaderboard));
-  renderLeaderboard();
-}
-
-function renderLeaderboard() {
-  const el = document.getElementById('leaderboard');
-  if (!leaderboard.length) {
-    el.innerHTML = '<div style="font-size:12px;color:#555;text-align:center">Joue pour apparaître ici</div>';
-    return;
+  function spawnFood() {
+    food = {x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20)};
   }
-  const medals = ['🥇','🥈','🥉','4.','5.'];
-  el.innerHTML = leaderboard.map((e,i) => `
-    <div class="lb-row">
-      <span>${medals[i]}</span>
-      <span class="lb-addr">${e.addr}</span>
-      <span class="lb-score">${e.score}</span>
-    </div>
-  `).join('');
-}
 
-// ── Boot ──────────────────────────────────────
-initState();
-draw();
-renderLeaderboard();
-setMsg('Connecte ton wallet puis appuie sur Start');
+  document.getElementById('startBtn').onclick = () => {
+    if (!account) return alert("Connecte ton wallet!");
+    initGame();
+    gameRunning = true;
+    document.getElementById('msg').innerText = "Jeu en cours...";
+  };
+
+  window.addEventListener('keydown', e => {
+    if(e.key === 'ArrowUp' && dir.y === 0) dir = {x:0, y:-1};
+    if(e.key === 'ArrowDown' && dir.y === 0) dir = {x:0, y:1};
+    if(e.key === 'ArrowLeft' && dir.x === 0) dir = {x:-1, y:0};
+    if(e.key === 'ArrowRight' && dir.x === 0) dir = {x:1, y:0};
+  });
+
+  function tick() {
+    if (!gameRunning) return;
+    const head = {x: snake.x + dir.x, y: snake.y + dir.y};
+    
+    if (head.x < 0 |
+
+| head.x >= 20 |
+| head.y < 0 |
+| head.y >= 20 |
+| snake.some(s => s.x === head.x && s.y === head.y)) {
+      gameRunning = false;
+      document.getElementById('msg').innerText = "💀 Game Over! Sauvegarde ton score.";
+      return;
+    }
+    
+    snake.unshift(head);
+    if (head.x === food.x && head.y === food.y) {
+      score++;
+      document.getElementById('dispScore').innerText = score;
+      spawnFood();
+    } else { snake.pop(); }
+
+    // Dessin
+    ctx.fillStyle = '#0d0d1a'; ctx.fillRect(0,0,400,400);
+    ctx.fillStyle = '#f59e0b'; ctx.fillRect(food.x*20+2, food.y*20+2, 16, 16);
+    ctx.fillStyle = '#a78bfa'; snake.forEach(s => ctx.fillRect(s.x*20+1, s.y*20+1, 18, 18));
+  }
+  setInterval(tick, 130);
 </script>
-
 </body>
 </html>
