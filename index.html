@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Snake Web3 🌦️ | GenLayer Météo IA</title>
+  <title>Snake Web3 🌦️ | GenLayer IA</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -137,14 +137,13 @@
 <body>
 
 <h1>🐍 Snake Web3</h1>
-<p class="subtitle">🌦️ IA Météo GenLayer · Hackathon 2026</p>
+<p class="subtitle">🌦️ IA Météo GenLayer · 1 transaction par partie</p>
 
 <div class="wallet-box">
   <div id="walletAddr">Non connecté</div>
   <button class="primary" id="connectBtn" style="margin-top:8px;width:100%">🔗 Connect Wallet (MetaMask / Rabby)</button>
 </div>
 
-<!-- Météo dynamique -->
 <div class="weather" id="weatherPanel">
   <span class="weather-icon" id="weatherIcon">🌍</span>
   <span id="weatherDesc">Chargement météo...</span>
@@ -187,9 +186,10 @@
 
 <script>
   // ---------- CONFIGURATION GENLAYER (ethers) ----------
+  // ⚠️ REMPLACE PAR LA VRAIE ADRESSE DE TON CONTRAT DÉPLOYÉ
   const CONTRACT_ADDR = "0x8ca6C94dC761ca504fF4037a8412CC623a9Ebd76";
   const ABI = [
-    "function eat_food() external",
+    "function submit_score(uint256 final_score) external",
     "function get_score(address player) view returns (uint256)",
     "function claim_reward() external",
     "function get_reward(address player) view returns (uint256)"
@@ -198,7 +198,7 @@
   let provider, signer, contract;
   let walletAddress = null;
 
-  // ---------- Météo (IA / Oracle) ----------
+  // ---------- Météo ----------
   let currentWeather = { condition: "sunny", temp: 20, icon: "☀️", effect: "Vitesse normale" };
   let weatherInterval = null;
   let foodMoveInterval = null;
@@ -206,7 +206,6 @@
 
   async function fetchWeather() {
     try {
-      // Utilisation de wttr.in (gratuit, pas de clé) – format simple
       const res = await fetch('https://wttr.in/?format=%C|%t');
       const text = await res.text();
       const [condition, tempStr] = text.split('|');
@@ -252,33 +251,18 @@
   }
 
   function applyWeatherEffect() {
-    // Modifie la vitesse du jeu si en cours
     if (running && gameLoop) {
       let newSpeed = 130;
       if (currentWeather.condition === 'snow') newSpeed = 170;
-      else if (currentWeather.condition === 'rainy') newSpeed = 130;
-      else newSpeed = 130;
       clearInterval(gameLoop);
       gameLoop = setInterval(tick, newSpeed);
     }
+    invertedControls = (currentWeather.condition === 'windy');
     
-    // Gère les contrôles inversés
-    if (currentWeather.condition === 'windy') {
-      invertedControls = true;
-      setMsg("🌬️ Vent fort : contrôles inversés !", false);
-    } else {
-      invertedControls = false;
-    }
-    
-    // Gère la nourriture instable (pluie)
     if (foodMoveInterval) clearInterval(foodMoveInterval);
     if (currentWeather.condition === 'rainy' && running) {
       foodMoveInterval = setInterval(() => {
-        if (running && !paused) {
-          // déplace la nourriture aléatoirement
-          spawnFood();
-          draw();
-        }
+        if (running && !paused) { spawnFood(); draw(); }
       }, 3000);
     }
   }
@@ -293,7 +277,6 @@
   let gameLoop, running, paused;
   let leaderboard = JSON.parse(localStorage.getItem('snakeLB') || '[]');
 
-  // ---------- UI helpers ----------
   function updateUI() {
     document.getElementById('dispScore').textContent = score;
     document.getElementById('dispHigh').textContent = highScore;
@@ -310,7 +293,6 @@
     }, 3000);
   }
 
-  // ---------- Game logic ----------
   function initState() {
     snake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
     dir = {x:1, y:0};
@@ -339,7 +321,6 @@
     gameLoop = setInterval(tick, speed);
     document.getElementById('nftBadge').classList.remove('show');
     setMsg('');
-    // relancer l'effet météo (nourriture instable)
     if (foodMoveInterval) clearInterval(foodMoveInterval);
     if (currentWeather.condition === 'rainy') {
       foodMoveInterval = setInterval(() => {
@@ -365,10 +346,7 @@
 
   async function move() {
     let dx = dir.x, dy = dir.y;
-    if (invertedControls) {
-      dx = -dx;
-      dy = -dy;
-    }
+    if (invertedControls) { dx = -dx; dy = -dy; }
     const head = {x: snake[0].x + dx, y: snake[0].y + dy};
     if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID) { gameOver(); return; }
     if (snake.some(s => s.x===head.x && s.y===head.y)) { gameOver(); return; }
@@ -380,14 +358,7 @@
       tokens++;
       localStorage.setItem('snakeTokens', tokens);
 
-      // Appel blockchain eat_food
-      if (contract && walletAddress) {
-        try {
-          const tx = await contract.eat_food();
-          await tx.wait();
-          console.log("✅ eat_food on-chain");
-        } catch(e) { console.warn("eat_food error", e); }
-      }
+      // ✅ PAS D'APPEL BLOCKCHAIN ICI
 
       if (score > highScore) {
         highScore = score;
@@ -425,6 +396,21 @@
     clearInterval(gameLoop);
     if (foodMoveInterval) clearInterval(foodMoveInterval);
     running = false;
+
+    // 🔥 UNE SEULE TRANSACTION À LA FIN
+    if (contract && walletAddress && score > 0) {
+      try {
+        setMsg("📤 Envoi du score final sur la blockchain...");
+        const tx = await contract.submit_score(score);
+        await tx.wait();
+        setMsg(`✅ Score ${score} enregistré sur GenLayer !`);
+        console.log("Score final soumis");
+      } catch(e) {
+        console.error("Erreur submit_score", e);
+        setMsg("❌ Échec de l'enregistrement du score final", true);
+      }
+    }
+
     setMsg('💀 Game Over ! Score : ' + score + ' | High : ' + highScore);
     updateLeaderboard();
     updateUI();
@@ -466,10 +452,7 @@
   }
 
   function setDir(x, y) {
-    if (invertedControls) {
-      x = -x;
-      y = -y;
-    }
+    if (invertedControls) { x = -x; y = -y; }
     if (x===1 && dir.x===-1) return;
     if (x===-1 && dir.x===1) return;
     if (y===1 && dir.y===-1) return;
@@ -477,7 +460,7 @@
     dir = {x, y};
   }
 
-  // ---------- Blockchain (ethers) ----------
+  // ---------- Blockchain ----------
   async function fetchOnChainReward() {
     if (!contract || !walletAddress) return 0;
     try {
@@ -505,7 +488,6 @@
     }
   }
 
-  // ---------- Connexion wallet ----------
   async function connectWallet() {
     if (typeof window.ethereum === 'undefined') {
       setMsg('MetaMask non détecté — installe MetaMask ou Rabby !', true);
@@ -514,8 +496,7 @@
     try {
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
       walletAddress = accounts[0];
-      document.getElementById('walletAddr').textContent =
-        walletAddress.slice(0,6) + '...' + walletAddress.slice(-4) + ' ✓';
+      document.getElementById('walletAddr').textContent = walletAddress.slice(0,6)+'...'+walletAddress.slice(-4)+' ✓';
       setMsg('Wallet connecté ! Appuie sur Start.');
 
       provider = new ethers.BrowserProvider(window.ethereum);
@@ -523,9 +504,8 @@
       contract = new ethers.Contract(CONTRACT_ADDR, ABI, signer);
 
       const network = await provider.getNetwork();
-      const chainId = Number(network.chainId);
-      if (chainId !== 61999) {
-        setMsg("⚠️ Attention: tu n'es pas sur le réseau GenLayer Studionet (chainId 61999). Change de réseau dans ton wallet.", true);
+      if (Number(network.chainId) !== 61999) {
+        setMsg("⚠️ Attention: réseau incorrect. Passe sur GenLayer Studionet (chainId 61999)", true);
       }
 
       const chainRew = await fetchOnChainReward();
@@ -548,7 +528,7 @@
     if (!entry) leaderboard.push({addr, score: highScore});
     else if (highScore > entry.score) entry.score = highScore;
     leaderboard.sort((a,b) => b.score - a.score);
-    leaderboard = leaderboard.slice(0, 5);
+    leaderboard = leaderboard.slice(0,5);
     localStorage.setItem('snakeLB', JSON.stringify(leaderboard));
     renderLeaderboard();
   }
@@ -600,8 +580,8 @@
   draw();
   renderLeaderboard();
   setMsg('Connecte ton wallet puis appuie sur Start');
-  fetchWeather(); // Charge la météo au démarrage
-  weatherInterval = setInterval(fetchWeather, 60000); // mise à jour toutes les minutes
+  fetchWeather();
+  weatherInterval = setInterval(fetchWeather, 60000);
 </script>
 </body>
 </html>
