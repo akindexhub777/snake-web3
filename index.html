@@ -442,15 +442,15 @@
       walletAddress = accounts[0];
 
       // Vérifier / ajouter le réseau GenLayer Studionet (chainId = 61999 => hex 0xF237)
-      const targetChainId = '0xF237';
-      let currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
-      if (currentChainId !== targetChainId) {
-        try {
-          await window.ethereum.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: targetChainId }],
-          });
-        } catch (switchError) {
+      //const targetChainId = '0xF237';
+      //let currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+      //if (currentChainId !== targetChainId) {
+       // try {
+         // await window.ethereum.request({
+           // method: 'wallet_switchEthereumChain',
+           // params: [{ chainId: targetChainId }],
+         // });
+       // } catch (switchError) {
           // Si le réseau n'existe pas, on l'ajoute
           //if (switchError.code === 4902) {
             //await window.ethereum.request({
