@@ -262,9 +262,7 @@
   function move() {
     const head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
 
-    // Collision murs
     if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID) { gameOver(); return; }
-    // Collision soi-même
     if (snake.some(s => s.x===head.x && s.y===head.y)) { gameOver(); return; }
 
     snake.unshift(head);
@@ -274,7 +272,6 @@
       tokens++;
       localStorage.setItem('snakeTokens', tokens);
 
-      // Appel blockchain (optionnel, silencieux)
       if (walletAddress) {
         sendEatToBlockchain().catch(e => console.warn("Blockchain error:", e));
       }
@@ -358,7 +355,6 @@
 
   // ---------- Blockchain (GenLayer) ----------
   const CONTRACT_ADDR = "0x8ca6C94dC761ca504fF4037a8412CC623a9Ebd76";
-  // ABI simplifié (à adapter selon ton contrat réel)
   const ABI = [
     { name: "eat_food", type: "write", inputs: [] },
     { name: "get_score", type: "view", inputs: [{ name: "player", type: "Address" }], outputs: [{ type: "u256" }] },
@@ -366,7 +362,7 @@
     { name: "get_reward", type: "view", inputs: [{ name: "player", type: "Address" }], outputs: [{ type: "u256" }] }
   ];
 
-  let genClient = null; // sera initialisé après connexion
+  let genClient = null;
 
   async function sendEatToBlockchain() {
     if (!genClient || !walletAddress) return;
@@ -380,19 +376,6 @@
     } catch(e) {
       console.warn("eat_food error", e);
     }
-  }
-
-  async function fetchOnChainScore() {
-    if (!genClient || !walletAddress) return 0;
-    try {
-      const res = await genClient.readContract({
-        address: CONTRACT_ADDR,
-        abi: ABI,
-        functionName: "get_score",
-        args: [walletAddress]
-      });
-      return Number(res);
-    } catch(e) { return 0; }
   }
 
   async function fetchOnChainReward() {
@@ -430,59 +413,28 @@
     }
   }
 
-  // ---------- Connexion wallet avec gestion réseau ----------
+  // ---------- Connexion wallet simplifiée (sans ajout auto du réseau) ----------
   async function connectWallet() {
     if (typeof window.ethereum === 'undefined') {
       setMsg('MetaMask non détecté — installe MetaMask ou Rabby !', true);
       return;
     }
     try {
-      // Demander l'accès au compte
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
       walletAddress = accounts[0];
 
-      // Vérifier / ajouter le réseau GenLayer Studionet (chainId = 61999 => hex 0xF237)
-      //const targetChainId = '0xF237';
-      //let currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
-      //if (currentChainId !== targetChainId) {
-       // try {
-         // await window.ethereum.request({
-           // method: 'wallet_switchEthereumChain',
-           // params: [{ chainId: targetChainId }],
-         // });
-       // } catch (switchError) {
-          // Si le réseau n'existe pas, on l'ajoute
-          //if (switchError.code === 4902) {
-            //await window.ethereum.request({
-             // method: 'wallet_addEthereumChain',
-              //params: [{
-               // chainId: targetChainId,
-                //chainName: 'GenLayer Studionet',
-               // rpcUrls: ['https://studio.genlayer.com/api'],
-               // nativeCurrency: { name: 'GEN', symbol: 'GEN', decimals: 18 },
-               // blockExplorerUrls: null,
-             // }],
-           // });
-        //  } else {
-          //  throw switchError;
-        //  }
-       // }
-     // }
-
-      // Mettre à jour l'affichage
       document.getElementById('walletAddr').textContent =
         walletAddress.slice(0,6) + '...' + walletAddress.slice(-4) + ' ✓';
       setMsg('Wallet connecté ! Appuie sur Start.');
 
-      // Initialiser le client GenLayer (chargement dynamique du SDK)
-      // On utilise un import dynamique pour éviter les problèmes de module
+      // Chargement dynamique du SDK GenLayer
       const { createClient } = await import('https://cdn.skypack.dev/genlayer-js');
       const { studionet } = await import('https://cdn.skypack.dev/genlayer-js/chains');
       genClient = createClient({
         chain: studionet,
         account: walletAddress
       });
-      // Optionnel : récupérer le reward existant
+
       const chainRew = await fetchOnChainReward();
       if (chainRew > 0) {
         reward = chainRew;
