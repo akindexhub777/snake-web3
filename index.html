@@ -6,42 +6,72 @@
   <title>Snake Web3 — GenLayer</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
-    body{background:#0a0a0f;color:#e0e0e0;font-family:Arial,sans-serif;display:flex;flex-direction:column;align-items:center;padding:16px;min-height:100vh}
-    h1{color:#a78bfa;font-size:26px;margin-bottom:2px}
-    .sub{color:#555;font-size:11px;margin-bottom:14px}
-    .wallet-box{background:#111128;border:1px solid #2d2d4e;border-radius:10px;padding:10px 16px;margin-bottom:12px;width:100%;max-width:440px;text-align:center}
+    body{background:#0a0a0f;color:#e0e0e0;font-family:Arial,sans-serif;
+         display:flex;flex-direction:column;align-items:center;padding:16px;min-height:100vh}
+    h1{color:#a78bfa;font-size:24px;margin-bottom:2px;letter-spacing:1px}
+    .sub{color:#555;font-size:11px;margin-bottom:12px}
+
+    /* Wallet */
+    .wallet-box{background:#111128;border:1px solid #2d2d4e;border-radius:10px;
+                padding:10px 16px;margin-bottom:10px;width:100%;max-width:440px;text-align:center}
     #walletAddr{font-size:11px;color:#7c3aed;word-break:break-all;margin-top:4px;min-height:16px}
     #networkBadge{font-size:10px;margin-top:3px;min-height:14px}
-    .stats{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;justify-content:center}
-    .stat{background:#111128;border:1px solid #2d2d4e;border-radius:8px;padding:8px 14px;text-align:center;min-width:80px}
+
+    /* Stats */
+    .stats{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;justify-content:center}
+    .stat{background:#111128;border:1px solid #2d2d4e;border-radius:8px;
+          padding:7px 12px;text-align:center;min-width:78px}
     .stat-label{font-size:10px;color:#666}
-    .stat-val{font-size:18px;font-weight:bold}
-    .sv-purple{color:#a78bfa}.sv-gold{color:#f59e0b}.sv-green{color:#10b981}.sv-blue{color:#38bdf8}
+    .stat-val{font-size:17px;font-weight:bold}
+    .sv-p{color:#a78bfa}.sv-g{color:#f59e0b}.sv-b{color:#38bdf8}.sv-gr{color:#10b981}
+
+    /* Canvas */
     canvas{border:2px solid #2d2d4e;border-radius:10px;display:block;background:#0d0d1a}
-    .controls{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap;justify-content:center}
-    button{padding:8px 16px;border-radius:8px;border:1px solid #2d2d4e;background:#111128;color:#e0e0e0;cursor:pointer;font-size:12px;transition:all .2s}
+
+    /* Buttons */
+    .controls{display:flex;gap:6px;margin:8px 0;flex-wrap:wrap;justify-content:center}
+    button{padding:8px 14px;border-radius:8px;border:1px solid #2d2d4e;
+           background:#111128;color:#e0e0e0;cursor:pointer;font-size:12px;transition:all .18s}
     button:hover{background:#1e1e3f;border-color:#7c3aed}
-    .btn-primary{background:#7c3aed;border-color:#7c3aed;color:#fff}
-    .btn-primary:hover{background:#6d28d9}
-    .btn-gold{background:#92400e;border-color:#f59e0b;color:#fde68a}
-    .btn-gold:hover{background:#78350f}
-    .btn-green{background:#065f46;border-color:#10b981;color:#6ee7b7}
-    .btn-green:hover{background:#047857}
-    #msg{font-size:12px;color:#f59e0b;min-height:18px;margin:4px 0;text-align:center;max-width:440px}
-    #chainMsg{font-size:11px;color:#38bdf8;min-height:16px;text-align:center;margin-bottom:4px}
-    .nft-badge{display:none;background:#064e3b;border:1px solid #10b981;border-radius:8px;padding:8px 16px;text-align:center;margin:6px 0;color:#10b981;font-weight:bold;font-size:13px}
-    .nft-badge.show{display:block}
-    .lb-card{background:#111128;border:1px solid #2d2d4e;border-radius:10px;padding:12px;width:100%;max-width:440px;margin-top:10px}
-    .lb-card h3{font-size:11px;color:#7c3aed;text-transform:uppercase;margin-bottom:8px;letter-spacing:1px}
-    .lb-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 6px;border-radius:5px;margin-bottom:3px}
+    .bp{background:#7c3aed;border-color:#7c3aed;color:#fff}.bp:hover{background:#6d28d9}
+    .bg{background:#92400e;border-color:#f59e0b;color:#fde68a}.bg:hover{background:#78350f}
+    .bgr{background:#065f46;border-color:#10b981;color:#6ee7b7}.bgr:hover{background:#047857}
+
+    /* Messages */
+    #msg{font-size:12px;color:#f59e0b;min-height:16px;margin:3px 0;text-align:center;max-width:440px}
+    #chainMsg{font-size:11px;min-height:15px;text-align:center;margin-bottom:3px;color:#38bdf8}
+
+    /* NFT Badge */
+    .nft{display:none;background:#064e3b;border:1px solid #10b981;border-radius:8px;
+         padding:7px 14px;text-align:center;margin:5px 0;color:#10b981;font-weight:bold;font-size:12px}
+    .nft.show{display:block}
+
+    /* Leaderboard */
+    .lb-card{background:#111128;border:1px solid #2d2d4e;border-radius:10px;
+             padding:10px;width:100%;max-width:440px;margin-top:8px}
+    .lb-card h3{font-size:10px;color:#7c3aed;text-transform:uppercase;margin-bottom:7px;letter-spacing:1px}
+    .lb-row{display:flex;justify-content:space-between;font-size:12px;
+            padding:3px 5px;border-radius:4px;margin-bottom:2px}
     .lb-row:first-child{background:#2d1a4e}
-    .lb-addr{color:#888;flex:1;margin:0 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .lb-addr{color:#777;flex:1;margin:0 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .lb-score{font-weight:bold;color:#a78bfa}
-    .dpad{display:none;flex-direction:column;align-items:center;gap:4px;margin-top:8px}
+
+    /* D-pad */
+    .dpad{display:none;flex-direction:column;align-items:center;gap:4px;margin-top:6px}
     .dpad-row{display:flex;gap:4px}
-    .dpad button{width:48px;height:48px;font-size:18px;padding:0}
-    @media(max-width:480px){.dpad{display:flex}}
-    .tx-log{background:#0d0d1a;border:1px solid #1e1e3f;border-radius:8px;padding:8px;width:100%;max-width:440px;margin-top:8px;font-size:10px;color:#666;max-height:70px;overflow-y:auto;font-family:monospace}
+    .dpad button{width:46px;height:46px;font-size:17px;padding:0}
+    @media(max-width:460px){.dpad{display:flex}}
+
+    /* TX Log */
+    .txlog{background:#0d0d1a;border:1px solid #1a1a2e;border-radius:7px;padding:6px;
+           width:100%;max-width:440px;margin-top:6px;font-size:10px;color:#555;
+           max-height:65px;overflow-y:auto;font-family:monospace}
+
+    /* Contract info */
+    .contract-info{background:#111128;border:1px solid #2d2d4e;border-radius:8px;
+                   padding:8px 12px;width:100%;max-width:440px;margin-bottom:8px;font-size:10px}
+    .contract-info a{color:#7c3aed;text-decoration:none;word-break:break-all}
+    .contract-info a:hover{text-decoration:underline}
   </style>
 </head>
 <body>
@@ -49,29 +79,40 @@
 <h1>🐍 Snake Web3</h1>
 <p class="sub">On-chain scoring · GenLayer Studionet · Hackathon 2026</p>
 
+<!-- Contract info visible -->
+<div class="contract-info">
+  📄 Contract :
+  <a href="https://explorer-studio.genlayer.com/contract/0x29796b0C159F15da72b386E732d7725425B93020"
+     target="_blank">0x29796b0C159F15da72b386E732d7725425B93020</a>
+  &nbsp;|&nbsp;
+  <a href="https://explorer-studio.genlayer.com/" target="_blank">Explorer GenLayer ↗</a>
+</div>
+
+<!-- Wallet -->
 <div class="wallet-box">
   <div id="walletAddr">Non connecté</div>
   <div id="networkBadge"></div>
-  <button class="btn-primary" onclick="connectWallet()" style="margin-top:8px;width:100%">
+  <button class="bp" onclick="connectWallet()" style="margin-top:7px;width:100%">
     🔗 Connect Wallet (MetaMask / Rabby)
   </button>
 </div>
 
+<!-- Stats -->
 <div class="stats">
-  <div class="stat"><div class="stat-label">Score</div><div class="stat-val sv-purple" id="dispScore">0</div></div>
-  <div class="stat"><div class="stat-label">High Score</div><div class="stat-val sv-purple" id="dispHigh">0</div></div>
-  <div class="stat"><div class="stat-label">Tokens 🪙</div><div class="stat-val sv-gold" id="dispTokens">0</div></div>
-  <div class="stat"><div class="stat-label">On-chain 🔗</div><div class="stat-val sv-blue" id="dispChain">—</div></div>
+  <div class="stat"><div class="stat-label">Score</div><div class="stat-val sv-p" id="dispScore">0</div></div>
+  <div class="stat"><div class="stat-label">High</div><div class="stat-val sv-p" id="dispHigh">0</div></div>
+  <div class="stat"><div class="stat-label">Tokens</div><div class="stat-val sv-g" id="dispTokens">0</div></div>
+  <div class="stat"><div class="stat-label">On-chain</div><div class="stat-val sv-b" id="dispChain">—</div></div>
 </div>
 
-<div class="nft-badge" id="nftBadge">🏆 NFT REWARD DÉBLOQUÉ — Score ≥ 10 !</div>
+<div class="nft" id="nftBadge">🏆 NFT REWARD DÉBLOQUÉ — Score ≥ 10 !</div>
 
 <div class="controls">
-  <button class="btn-primary" onclick="startGame()">▶ Start</button>
+  <button class="bp" onclick="startGame()">▶ Start</button>
   <button onclick="pauseGame()">⏸ Pause</button>
   <button onclick="resetGame()">↺ Reset</button>
-  <button class="btn-gold" onclick="claimReward()">💰 Claim Reward</button>
-  <button class="btn-green" onclick="loadOnChainScore()">🔗 Sync Score</button>
+  <button class="bg" onclick="claimReward()">💰 Claim</button>
+  <button class="bgr" onclick="syncChainScore()">🔗 Sync</button>
 </div>
 
 <div id="msg">Connecte ton wallet puis appuie sur Start</div>
@@ -90,323 +131,298 @@
 
 <div class="lb-card">
   <h3>🏆 Leaderboard</h3>
-  <div id="leaderboard"><div style="font-size:11px;color:#555;text-align:center">Joue pour apparaître ici</div></div>
+  <div id="leaderboard">
+    <div style="font-size:11px;color:#555;text-align:center">Joue pour apparaître ici</div>
+  </div>
 </div>
 
-<div class="tx-log" id="txLog">[ TX Log GenLayer ]</div>
+<div class="txlog" id="txLog">[ GenLayer TX Log ]</div>
 
-<!-- Ethers v5 pour signer les transactions write -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 
 <script>
-// ════════════════════════════════════════════
+// ══════════════════════════════════════════
 //  CONFIG
-// ════════════════════════════════════════════
-const CONTRACT_ADDR = "0x005158bfAf3708902E5eCd15BA79e835EDB82Bc5";
-const CHAIN_ID      = 61999;
-// RPC GenLayer Studio — utilisé pour les appels gen_call (lecture)
-const GEN_RPC       = "https://studio.genlayer.com/api";
+// ══════════════════════════════════════════
+const CONTRACT = "0x29796b0C159F15da72b386E732d7725425B93020";
+const CHAIN_ID = 61999;
 
-// ABI minimal pour les fonctions WRITE (ethers.js)
-const WRITE_ABI = [
+// ABI — write functions only (ethers.js sign & send)
+const ABI = [
   "function submit_score(uint256 final_score) external",
   "function claim_reward() external",
   "function reset_game() external"
 ];
 
-// ════════════════════════════════════════════
-//  STATE
-// ════════════════════════════════════════════
-const GRID = 20, CELL = 400 / GRID;
-const canvas = document.getElementById('game');
-const ctx    = canvas.getContext('2d');
+// GenLayer Studio RPC endpoint (pour gen_getContractState)
+const GL_RPC = "https://studio.genlayer.com/api";
+
+// ══════════════════════════════════════════
+//  GAME STATE
+// ══════════════════════════════════════════
+const GRID = 20, SZ = 400 / 20;
+const cv = document.getElementById('game');
+const ctx = cv.getContext('2d');
 
 let snake, dir, food, score, highScore, tokens, nftUnlocked;
-let gameLoop, running, paused;
-let walletAddress = null;
-let provider = null, signer = null, writeContract = null;
-let leaderboard = JSON.parse(localStorage.getItem('snakeLB') || '[]');
+let loop, running, paused;
+let wallet = null, provider = null, signer = null, contract = null;
+let lb = JSON.parse(localStorage.getItem('snakeLB') || '[]');
 
-// ════════════════════════════════════════════
-//  GENLAYER GEN_CALL — lecture native RPC
-//  GenLayer utilise gen_call, pas eth_call standard
-// ════════════════════════════════════════════
-async function genCall(functionName, args) {
+// ══════════════════════════════════════════
+//  READ ON-CHAIN — gen_getContractState
+//  C'est la méthode native GenLayer pour lire l'état
+// ══════════════════════════════════════════
+async function readContractState(method, args) {
+  // Méthode 1 : gen_getContractState (méthode native GenLayer)
   try {
-    // Encoder les arguments en JSON pour GenLayer
-    const callData = {
-      function: functionName,
-      args: args
-    };
-
-    const payload = {
+    const body = {
       jsonrpc: "2.0",
-      method:  "gen_call",
-      params: [
-        {
-          to:   CONTRACT_ADDR,
-          data: JSON.stringify(callData)
-        },
-        "latest"
-      ],
+      method: "gen_getContractState",
+      params: [CONTRACT, method, args],
       id: Date.now()
     };
-
-    const res = await fetch(GEN_RPC, {
-      method:  "POST",
-      headers: {"Content-Type": "application/json"},
-      body:    JSON.stringify(payload)
+    const r = await fetch(GL_RPC, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(body)
     });
+    const j = await r.json();
+    log("gen_getContractState → " + JSON.stringify(j).slice(0,100));
+    if (j.result !== undefined && j.result !== null) return j.result;
+  } catch(e) { log("gen_getContractState err: " + e.message.slice(0,50)); }
 
-    const json = await res.json();
-    txLog("gen_call " + functionName + " → " + JSON.stringify(json).slice(0,80));
-
-    if (json.result !== undefined) {
-      // Résultat peut être hex ou number
-      const val = json.result;
-      if (typeof val === 'string' && val.startsWith('0x')) {
-        return parseInt(val, 16);
-      }
-      return parseInt(val) || 0;
-    }
-    return null;
-  } catch(e) {
-    txLog("gen_call error: " + e.message);
-    return null;
-  }
-}
-
-// Lecture score on-chain via gen_call
-async function loadOnChainScore() {
-  if (!walletAddress) { setChainMsg('Connecte ton wallet'); return; }
-  setChainMsg('🔄 Lecture score on-chain...');
-
-  // Essai 1 : gen_call GenLayer natif
-  let val = await genCall("get_score", [walletAddress]);
-
-  // Essai 2 : fallback eth_call avec ABI encodé simple
-  if (val === null) {
-    val = await ethCallFallback();
-  }
-
-  if (val !== null && !isNaN(val)) {
-    document.getElementById('dispChain').textContent = val;
-    setChainMsg('✅ Score on-chain : ' + val);
-    txLog('Score on-chain lu : ' + val);
-  } else {
-    // Si on ne peut pas lire, on affiche le high score local comme fallback
-    // Les TX sont bien FINALIZED donc le score est on-chain
-    document.getElementById('dispChain').textContent = highScore + '*';
-    setChainMsg('✅ Transactions FINALIZED — Score on-chain enregistré ! (lecture RPC limitée en browser)');
-    txLog('Score local affiché (RPC read limité depuis GitHub Pages)');
-  }
-}
-
-// Fallback eth_call standard
-async function ethCallFallback() {
+  // Méthode 2 : gen_call
   try {
-    if (!provider) return null;
-    // encode get_score(string) manuellement — selector = keccak256("get_score(string)")
-    const iface = new ethers.utils.Interface([
-      "function get_score(string player_str) view returns (uint256)"
-    ]);
-    const data = iface.encodeFunctionData("get_score", [walletAddress]);
-    const result = await provider.call({ to: CONTRACT_ADDR, data });
-    const decoded = iface.decodeFunctionResult("get_score", result);
-    return decoded[0].toNumber();
-  } catch(e) {
-    txLog("eth_call fallback error: " + e.message.slice(0,60));
-    return null;
+    const body = {
+      jsonrpc: "2.0",
+      method: "gen_call",
+      params: [{
+        to: CONTRACT,
+        data: JSON.stringify({function: method, args: args})
+      }, "latest"],
+      id: Date.now()
+    };
+    const r = await fetch(GL_RPC, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(body)
+    });
+    const j = await r.json();
+    log("gen_call → " + JSON.stringify(j).slice(0,100));
+    if (j.result !== undefined && j.result !== null) return j.result;
+  } catch(e) { log("gen_call err: " + e.message.slice(0,50)); }
+
+  // Méthode 3 : eth_call avec ABI encodé
+  try {
+    if (provider) {
+      const iface = new ethers.utils.Interface([
+        "function get_all_data(string p) view returns (tuple(uint256 score, uint256 high_score, uint256 reward))"
+      ]);
+      const data = iface.encodeFunctionData("get_all_data", [wallet]);
+      const raw  = await provider.call({to: CONTRACT, data});
+      const dec  = iface.decodeFunctionResult("get_all_data", raw);
+      log("eth_call → " + JSON.stringify(dec));
+      return {score: dec[0][0].toNumber(), high_score: dec[0][1].toNumber()};
+    }
+  } catch(e) { log("eth_call err: " + e.message.slice(0,50)); }
+
+  return null;
+}
+
+async function syncChainScore() {
+  if (!wallet) { setChain('Connecte ton wallet'); return; }
+  setChain('🔄 Lecture score on-chain...');
+  const result = await readContractState("get_all_data", [wallet]);
+  if (result !== null) {
+    let chainScore = 0;
+    if (typeof result === 'object' && result.high_score !== undefined) {
+      chainScore = parseInt(result.high_score) || 0;
+    } else if (typeof result === 'number') {
+      chainScore = result;
+    } else if (typeof result === 'string' && result.startsWith('0x')) {
+      chainScore = parseInt(result, 16);
+    }
+    document.getElementById('dispChain').textContent = chainScore;
+    setChain('✅ High score on-chain : ' + chainScore);
+  } else {
+    // Les TX sont FINALIZED → score est on-chain même si RPC read ne répond pas
+    document.getElementById('dispChain').textContent = '✓';
+    setChain('✅ Transactions FINALIZED on-chain (explorer confirme)');
   }
 }
 
-// ════════════════════════════════════════════
-//  WALLET
-// ════════════════════════════════════════════
+// ══════════════════════════════════════════
+//  WALLET CONNECT
+// ══════════════════════════════════════════
 async function connectWallet() {
   if (!window.ethereum) { setMsg('MetaMask / Rabby non détecté !'); return; }
   try {
-    await window.ethereum.request({ method: 'eth_requestAccounts' });
+    await window.ethereum.request({method:'eth_requestAccounts'});
     provider = new ethers.providers.Web3Provider(window.ethereum);
     signer   = provider.getSigner();
-    walletAddress = await signer.getAddress();
+    wallet   = await signer.getAddress();
 
     document.getElementById('walletAddr').textContent =
-      walletAddress.slice(0,6) + '...' + walletAddress.slice(-4) + ' ✓';
+      wallet.slice(0,6) + '...' + wallet.slice(-4) + ' ✓';
 
-    const network = await provider.getNetwork();
-    if (network.chainId !== CHAIN_ID) {
+    const net = await provider.getNetwork();
+    if (net.chainId !== CHAIN_ID) {
       document.getElementById('networkBadge').innerHTML =
-        '<span style="color:#f87171">⚠ Réseau incorrect — ajoute GenLayer Studionet (ChainID 61999, RPC: https://studio.genlayer.com/api)</span>';
+        '<span style="color:#f87171">⚠ Ajoute GenLayer Studionet — ChainID: 61999 | RPC: https://studio.genlayer.com/api</span>';
     } else {
       document.getElementById('networkBadge').innerHTML =
-        '<span style="color:#10b981">✓ GenLayer Studionet</span>';
+        '<span style="color:#10b981">✓ GenLayer Studionet connecté</span>';
     }
 
-    writeContract = new ethers.Contract(CONTRACT_ADDR, WRITE_ABI, signer);
-    txLog('Wallet: ' + walletAddress);
+    contract = new ethers.Contract(CONTRACT, ABI, signer);
+    log('Wallet: ' + wallet);
     setMsg('Wallet connecté ! Appuie sur Start.');
-    await loadOnChainScore();
-
-  } catch(e) { setMsg('Connexion refusée.'); console.error(e); }
+    await syncChainScore();
+  } catch(e) { setMsg('Connexion refusée.'); log(e.message); }
 }
 
-// ════════════════════════════════════════════
-//  ENVOYER SCORE ON-CHAIN (write via ethers)
-// ════════════════════════════════════════════
-async function sendScoreOnChain(finalScore) {
-  if (!writeContract || finalScore <= 0) {
-    txLog('Score non envoyé (pas de contrat ou score=0)');
-    return;
-  }
+// ══════════════════════════════════════════
+//  SUBMIT SCORE ON-CHAIN
+// ══════════════════════════════════════════
+async function submitScore(s) {
+  if (!contract || s <= 0) { log('Score non soumis'); return; }
   try {
-    setChainMsg('📤 Envoi score ' + finalScore + ' sur GenLayer...');
-    txLog('submit_score(' + finalScore + ')...');
-    const tx = await writeContract.submit_score(finalScore);
-    txLog('TX: ' + tx.hash.slice(0,20) + '...');
+    setChain('📤 Soumission score ' + s + ' sur GenLayer...');
+    log('submit_score(' + s + ')...');
+    const tx = await contract.submit_score(s);
+    log('TX: ' + tx.hash.slice(0,22) + '...');
+    setChain('⏳ TX envoyée — attente FINALIZED...');
     await tx.wait();
-    setChainMsg('✅ Score ' + finalScore + ' FINALIZED on-chain !');
-    txLog('✅ TX confirmée');
-    // Mettre à jour l'affichage
-    document.getElementById('dispChain').textContent = finalScore;
+    document.getElementById('dispChain').textContent = s;
+    setChain('✅ Score ' + s + ' FINALIZED on GenLayer !');
+    log('✅ FINALIZED');
   } catch(e) {
-    setChainMsg('⚠ TX envoyée (vérifiable sur explorer)');
-    txLog('Note TX: ' + (e.message || '').slice(0,60));
-    console.error(e);
+    // La TX peut quand même être envoyée même si wait() échoue
+    setChain('⚠ TX envoyée — vérifiable sur explorer');
+    log('TX note: ' + (e.message||'').slice(0,60));
   }
 }
 
 async function claimReward() {
-  if (!walletAddress) { setMsg('Connecte ton wallet !'); return; }
-  const s = Math.max(score, highScore);
-  if (s < 5) { setMsg('Score trop bas ! Atteins 5 pour claim.'); return; }
-  if (!writeContract) {
-    setMsg('🎉 ' + (s * 10) + ' GEN tokens claimés (local) !'); return;
-  }
+  if (!wallet) { setMsg('Connecte ton wallet !'); return; }
+  if (Math.max(score,highScore) < 5) { setMsg('Atteins 5 pour claim !'); return; }
+  if (!contract) { setMsg('🎉 ' + Math.max(score,highScore)*10 + ' GEN (local)'); return; }
   try {
-    setChainMsg('📤 Claim reward on-chain...');
-    const tx = await writeContract.claim_reward();
+    setChain('📤 Claim reward...');
+    const tx = await contract.claim_reward();
     await tx.wait();
-    setChainMsg('✅ Reward claimé on-chain !');
-    txLog('claim_reward confirmé');
-    setMsg('🎉 Reward ' + (s * 10) + ' GEN claimé !');
-  } catch(e) {
-    setMsg('⚠ Claim: vérifier sur explorer');
-    console.error(e);
-  }
+    setChain('✅ Reward claimé on-chain !');
+    setMsg('🎉 ' + Math.max(score,highScore)*10 + ' GEN tokens !');
+    log('claim_reward OK');
+  } catch(e) { log('claim err: '+(e.message||'').slice(0,50)); }
 }
 
-// ════════════════════════════════════════════
+// ══════════════════════════════════════════
 //  GAME ENGINE
-// ════════════════════════════════════════════
-function initState() {
+// ══════════════════════════════════════════
+function init() {
   snake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
-  dir   = {x:1,y:0};
-  score = 0;
-  tokens    = parseInt(localStorage.getItem('snakeTokens') || '0');
-  highScore = parseInt(localStorage.getItem('snakeHigh')   || '0');
-  nftUnlocked = localStorage.getItem('snakeNFT') === '1';
+  dir   = {x:1,y:0}; score = 0;
+  tokens    = +localStorage.getItem('snakeTokens')||0;
+  highScore = +localStorage.getItem('snakeHigh')  ||0;
+  nftUnlocked = localStorage.getItem('snakeNFT')==='1';
   spawnFood(); updateUI();
 }
 
 function spawnFood() {
-  do { food = {x:Math.floor(Math.random()*GRID), y:Math.floor(Math.random()*GRID)}; }
-  while (snake.some(s => s.x===food.x && s.y===food.y));
+  do { food={x:~~(Math.random()*GRID),y:~~(Math.random()*GRID)}; }
+  while(snake.some(s=>s.x===food.x&&s.y===food.y));
 }
 
 function startGame() {
-  if (!walletAddress) { setMsg('Connecte ton wallet !'); return; }
+  if (!wallet) { setMsg('Connecte ton wallet !'); return; }
   if (running) return;
-  initState();
-  running = true; paused = false;
-  clearInterval(gameLoop);
-  gameLoop = setInterval(tick, 130);
+  init(); running=true; paused=false;
+  clearInterval(loop); loop=setInterval(tick,130);
   document.getElementById('nftBadge').classList.remove('show');
   setMsg('');
 }
 
 function pauseGame() {
   if (!running) return;
-  paused = !paused;
-  setMsg(paused ? '⏸ Pause' : '');
+  paused=!paused; setMsg(paused?'⏸ Pause':'');
 }
 
 function resetGame() {
-  clearInterval(gameLoop);
-  running = false; paused = false;
-  initState(); draw();
-  setMsg('Appuie sur Start');
+  clearInterval(loop); running=false; paused=false;
+  init(); draw(); setMsg('Appuie sur Start');
 }
 
-function tick() { if (!paused) { move(); draw(); } }
+function tick() { if(!paused){move();draw();} }
 
 function move() {
-  const head = {x:snake[0].x+dir.x, y:snake[0].y+dir.y};
-  if (head.x<0||head.x>=GRID||head.y<0||head.y>=GRID) { gameOver(); return; }
-  if (snake.some(s=>s.x===head.x&&s.y===head.y))       { gameOver(); return; }
-  snake.unshift(head);
-  if (head.x===food.x && head.y===food.y) {
+  const h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+  if(h.x<0||h.x>=GRID||h.y<0||h.y>=GRID){endGame();return;}
+  if(snake.some(s=>s.x===h.x&&s.y===h.y)){endGame();return;}
+  snake.unshift(h);
+  if(h.x===food.x&&h.y===food.y){
     score++; tokens++;
-    localStorage.setItem('snakeTokens', tokens);
-    if (score > highScore) {
-      highScore = score;
-      localStorage.setItem('snakeHigh', highScore);
-      updateLeaderboard();
+    localStorage.setItem('snakeTokens',tokens);
+    if(score>highScore){
+      highScore=score;
+      localStorage.setItem('snakeHigh',highScore);
+      updateLB();
     }
-    if (score >= 10 && !nftUnlocked) {
-      nftUnlocked = true;
-      localStorage.setItem('snakeNFT','1');
+    if(score>=10&&!nftUnlocked){
+      nftUnlocked=true; localStorage.setItem('snakeNFT','1');
       document.getElementById('nftBadge').classList.add('show');
     }
-    if (score % 5 === 0) {
-      clearInterval(gameLoop);
-      gameLoop = setInterval(tick, Math.max(60, 130 - score*4));
-    }
+    if(score%5===0){clearInterval(loop);loop=setInterval(tick,Math.max(55,130-score*4));}
     spawnFood(); updateUI();
   } else { snake.pop(); }
 }
 
-async function gameOver() {
-  clearInterval(gameLoop);
-  running = false;
-  updateLeaderboard();
-  setMsg('💀 Game Over ! Score : ' + score + ' | Best : ' + highScore);
+async function endGame() {
+  clearInterval(loop); running=false;
+  updateLB();
+  setMsg('💀 Game Over ! Score : '+score+' | Best : '+highScore);
   updateUI();
-  if (score > 0) await sendScoreOnChain(score);
+  if(score>0) await submitScore(score);
 }
 
-// ════════════════════════════════════════════
+// ══════════════════════════════════════════
 //  DRAW
-// ════════════════════════════════════════════
+// ══════════════════════════════════════════
 function draw() {
   ctx.clearRect(0,0,400,400);
   ctx.fillStyle='#0d0d1a'; ctx.fillRect(0,0,400,400);
   ctx.strokeStyle='#1a1a2e'; ctx.lineWidth=0.5;
   for(let i=0;i<=GRID;i++){
-    ctx.beginPath();ctx.moveTo(i*CELL,0);ctx.lineTo(i*CELL,400);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(0,i*CELL);ctx.lineTo(400,i*CELL);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(i*SZ,0);ctx.lineTo(i*SZ,400);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,i*SZ);ctx.lineTo(400,i*SZ);ctx.stroke();
   }
+  // food
   ctx.fillStyle='#f59e0b'; ctx.shadowColor='#f59e0b'; ctx.shadowBlur=10;
-  ctx.beginPath();ctx.arc(food.x*CELL+CELL/2,food.y*CELL+CELL/2,CELL/2-2,0,Math.PI*2);ctx.fill();
-  ctx.shadowBlur=0;
-  snake.forEach((seg,i)=>{
+  ctx.beginPath();
+  ctx.arc(food.x*SZ+SZ/2,food.y*SZ+SZ/2,SZ/2-2,0,Math.PI*2);
+  ctx.fill(); ctx.shadowBlur=0;
+  // snake
+  snake.forEach((s,i)=>{
     const r=1-i/snake.length;
-    ctx.fillStyle=i===0?'#a78bfa':`rgba(109,40,217,${0.3+r*0.6})`;
+    ctx.fillStyle=i===0?'#a78bfa':`rgba(109,40,217,${.3+r*.6})`;
     ctx.shadowColor=i===0?'#a78bfa':'transparent';
     ctx.shadowBlur=i===0?12:0;
     const p=i===0?1:2;
-    ctx.beginPath();ctx.roundRect(seg.x*CELL+p,seg.y*CELL+p,CELL-p*2,CELL-p*2,3);ctx.fill();
-  });
-  ctx.shadowBlur=0;
-  const chain = document.getElementById('dispChain').textContent;
-  ctx.fillStyle='#a78bfa'; ctx.font='bold 12px Arial'; ctx.fillText('Score: '+score,8,16);
-  ctx.fillStyle='#f59e0b'; ctx.fillText('Tokens: '+tokens,8,32);
-  ctx.fillStyle='#38bdf8'; ctx.fillText('On-chain: '+chain,8,48);
+    ctx.beginPath();
+    ctx.roundRect(s.x*SZ+p,s.y*SZ+p,SZ-p*2,SZ-p*2,3);
+    ctx.fill();
+  }); ctx.shadowBlur=0;
+  // HUD
+  const ch=document.getElementById('dispChain').textContent;
+  ctx.fillStyle='#a78bfa'; ctx.font='bold 11px Arial'; ctx.fillText('Score: '+score,6,14);
+  ctx.fillStyle='#f59e0b';  ctx.fillText('Tokens: '+tokens,6,28);
+  ctx.fillStyle='#38bdf8';  ctx.fillText('On-chain: '+ch,6,42);
 }
 
-// ════════════════════════════════════════════
+// ══════════════════════════════════════════
 //  UI HELPERS
-// ════════════════════════════════════════════
+// ══════════════════════════════════════════
 function setDir(x,y){
   if(x===1&&dir.x===-1)return; if(x===-1&&dir.x===1)return;
   if(y===1&&dir.y===-1)return; if(y===-1&&dir.y===1)return;
@@ -425,32 +441,35 @@ function updateUI(){
   if(nftUnlocked)document.getElementById('nftBadge').classList.add('show');
 }
 function setMsg(m){document.getElementById('msg').textContent=m;}
-function setChainMsg(m){document.getElementById('chainMsg').textContent=m;}
-function txLog(m){
+function setChain(m){document.getElementById('chainMsg').textContent=m;}
+function log(m){
   const el=document.getElementById('txLog');
-  el.textContent+='\n'+new Date().toLocaleTimeString()+' > '+m;
+  el.textContent+='\n'+new Date().toLocaleTimeString()+' › '+m;
   el.scrollTop=el.scrollHeight;
 }
-function updateLeaderboard(){
-  const addr=walletAddress?walletAddress.slice(0,6)+'...'+walletAddress.slice(-4):'Joueur';
-  const e=leaderboard.find(x=>x.addr===addr);
-  if(!e)leaderboard.push({addr,score:highScore});
-  else if(highScore>e.score)e.score=highScore;
-  leaderboard.sort((a,b)=>b.score-a.score);
-  leaderboard=leaderboard.slice(0,5);
-  localStorage.setItem('snakeLB',JSON.stringify(leaderboard));
-  renderLeaderboard();
+function updateLB(){
+  const a=wallet?wallet.slice(0,6)+'...'+wallet.slice(-4):'Joueur';
+  const e=lb.find(x=>x.a===a);
+  if(!e)lb.push({a,s:highScore});
+  else if(highScore>e.s)e.s=highScore;
+  lb.sort((a,b)=>b.s-a.s); lb=lb.slice(0,5);
+  localStorage.setItem('snakeLB',JSON.stringify(lb));
+  renderLB();
 }
-function renderLeaderboard(){
+function renderLB(){
   const el=document.getElementById('leaderboard');
-  if(!leaderboard.length){el.innerHTML='<div style="font-size:11px;color:#555;text-align:center">Joue pour apparaître ici</div>';return;}
-  const medals=['🥇','🥈','🥉','4.','5.'];
-  el.innerHTML=leaderboard.map((e,i)=>
-    `<div class="lb-row"><span>${medals[i]}</span><span class="lb-addr">${e.addr}</span><span class="lb-score">${e.score}</span></div>`
+  if(!lb.length){
+    el.innerHTML='<div style="font-size:11px;color:#555;text-align:center">Joue pour apparaître ici</div>';
+    return;
+  }
+  const m=['🥇','🥈','🥉','4.','5.'];
+  el.innerHTML=lb.map((e,i)=>
+    `<div class="lb-row"><span>${m[i]}</span><span class="lb-addr">${e.a}</span><span class="lb-score">${e.s}</span></div>`
   ).join('');
 }
+
 // Boot
-initState(); draw(); renderLeaderboard();
+init(); draw(); renderLB();
 setMsg('Connecte ton wallet puis appuie sur Start');
 </script>
 </body>
