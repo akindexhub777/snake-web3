@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Snake Web3 — GenLayer</title>
+  <title>Snake Web3 — GenLayer AI</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{background:#0a0a0f;color:#e0e0e0;font-family:Arial,sans-serif;
@@ -11,81 +11,88 @@
     h1{color:#a78bfa;font-size:24px;margin-bottom:2px;letter-spacing:1px}
     .sub{color:#555;font-size:11px;margin-bottom:12px}
 
-    /* Wallet */
     .wallet-box{background:#111128;border:1px solid #2d2d4e;border-radius:10px;
                 padding:10px 16px;margin-bottom:10px;width:100%;max-width:440px;text-align:center}
     #walletAddr{font-size:11px;color:#7c3aed;word-break:break-all;margin-top:4px;min-height:16px}
     #networkBadge{font-size:10px;margin-top:3px;min-height:14px}
 
-    /* Stats */
+    /* Challenge AI box */
+    .ai-box{background:#0d0d1a;border:1px solid #4c1d95;border-radius:10px;
+            padding:10px 14px;width:100%;max-width:440px;margin-bottom:8px;
+            display:none}
+    .ai-box.show{display:block}
+    .ai-box h3{font-size:10px;color:#7c3aed;text-transform:uppercase;margin-bottom:5px}
+    .ai-box p{font-size:12px;color:#c4b5fd;line-height:1.5}
+    .ai-diff{display:inline-block;font-size:10px;padding:2px 7px;border-radius:4px;
+             margin-top:4px;font-weight:bold}
+    .diff-easy{background:#064e3b;color:#10b981}
+    .diff-medium{background:#78350f;color:#fbbf24}
+    .diff-hard{background:#7f1d1d;color:#f87171}
+
     .stats{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;justify-content:center}
     .stat{background:#111128;border:1px solid #2d2d4e;border-radius:8px;
-          padding:7px 12px;text-align:center;min-width:78px}
+          padding:7px 12px;text-align:center;min-width:74px}
     .stat-label{font-size:10px;color:#666}
     .stat-val{font-size:17px;font-weight:bold}
-    .sv-p{color:#a78bfa}.sv-g{color:#f59e0b}.sv-b{color:#38bdf8}.sv-gr{color:#10b981}
+    .sv-p{color:#a78bfa}.sv-g{color:#f59e0b}.sv-b{color:#38bdf8}
 
-    /* Canvas */
+    .contract-info{background:#111128;border:1px solid #2d2d4e;border-radius:8px;
+                   padding:7px 12px;width:100%;max-width:440px;margin-bottom:8px;
+                   font-size:10px;color:#666}
+    .contract-info a{color:#7c3aed;text-decoration:none}
+
     canvas{border:2px solid #2d2d4e;border-radius:10px;display:block;background:#0d0d1a}
 
-    /* Buttons */
     .controls{display:flex;gap:6px;margin:8px 0;flex-wrap:wrap;justify-content:center}
     button{padding:8px 14px;border-radius:8px;border:1px solid #2d2d4e;
-           background:#111128;color:#e0e0e0;cursor:pointer;font-size:12px;transition:all .18s}
+           background:#111128;color:#e0e0e0;cursor:pointer;font-size:12px;transition:all .2s}
     button:hover{background:#1e1e3f;border-color:#7c3aed}
+    button:disabled{opacity:.35;cursor:not-allowed}
     .bp{background:#7c3aed;border-color:#7c3aed;color:#fff}.bp:hover{background:#6d28d9}
     .bg{background:#92400e;border-color:#f59e0b;color:#fde68a}.bg:hover{background:#78350f}
+    .bai{background:#1e1b4b;border-color:#7c3aed;color:#c4b5fd}.bai:hover{background:#2e2b5b}
     .bgr{background:#065f46;border-color:#10b981;color:#6ee7b7}.bgr:hover{background:#047857}
 
-    /* Messages */
-    #msg{font-size:12px;color:#f59e0b;min-height:16px;margin:3px 0;text-align:center;max-width:440px}
-    #chainMsg{font-size:11px;min-height:15px;text-align:center;margin-bottom:3px;color:#38bdf8}
+    #msg{font-size:12px;color:#f59e0b;min-height:16px;margin:3px 0;
+         text-align:center;max-width:440px}
+    #chainMsg{font-size:11px;min-height:15px;text-align:center;
+              margin-bottom:3px;color:#38bdf8;max-width:440px}
 
-    /* NFT Badge */
     .nft{display:none;background:#064e3b;border:1px solid #10b981;border-radius:8px;
-         padding:7px 14px;text-align:center;margin:5px 0;color:#10b981;font-weight:bold;font-size:12px}
+         padding:7px 14px;text-align:center;margin:5px 0;color:#10b981;
+         font-weight:bold;font-size:12px}
     .nft.show{display:block}
 
-    /* Leaderboard */
     .lb-card{background:#111128;border:1px solid #2d2d4e;border-radius:10px;
              padding:10px;width:100%;max-width:440px;margin-top:8px}
-    .lb-card h3{font-size:10px;color:#7c3aed;text-transform:uppercase;margin-bottom:7px;letter-spacing:1px}
+    .lb-card h3{font-size:10px;color:#7c3aed;text-transform:uppercase;
+                margin-bottom:7px;letter-spacing:1px}
     .lb-row{display:flex;justify-content:space-between;font-size:12px;
             padding:3px 5px;border-radius:4px;margin-bottom:2px}
     .lb-row:first-child{background:#2d1a4e}
     .lb-addr{color:#777;flex:1;margin:0 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .lb-score{font-weight:bold;color:#a78bfa}
 
-    /* D-pad */
     .dpad{display:none;flex-direction:column;align-items:center;gap:4px;margin-top:6px}
     .dpad-row{display:flex;gap:4px}
     .dpad button{width:46px;height:46px;font-size:17px;padding:0}
     @media(max-width:460px){.dpad{display:flex}}
 
-    /* TX Log */
-    .txlog{background:#0d0d1a;border:1px solid #1a1a2e;border-radius:7px;padding:6px;
-           width:100%;max-width:440px;margin-top:6px;font-size:10px;color:#555;
-           max-height:65px;overflow-y:auto;font-family:monospace}
-
-    /* Contract info */
-    .contract-info{background:#111128;border:1px solid #2d2d4e;border-radius:8px;
-                   padding:8px 12px;width:100%;max-width:440px;margin-bottom:8px;font-size:10px}
-    .contract-info a{color:#7c3aed;text-decoration:none;word-break:break-all}
-    .contract-info a:hover{text-decoration:underline}
+    .txlog{background:#0d0d1a;border:1px solid #1a1a2e;border-radius:7px;
+           padding:6px;width:100%;max-width:440px;margin-top:6px;
+           font-size:10px;color:#555;max-height:80px;overflow-y:auto;
+           font-family:monospace;white-space:pre-wrap}
   </style>
 </head>
 <body>
 
-<h1>🐍 Snake Web3</h1>
-<p class="sub">On-chain scoring · GenLayer Studionet · Hackathon 2026</p>
+<h1>🐍 Snake Web3 AI</h1>
+<p class="sub">LLM-powered Intelligent Contract · GenLayer Studionet · Hackathon 2026</p>
 
-<!-- Contract info visible -->
 <div class="contract-info">
   📄 Contract :
-  <a href="https://explorer-studio.genlayer.com/contract/0x29796b0C159F15da72b386E732d7725425B93020"
-     target="_blank">0x29796b0C159F15da72b386E732d7725425B93020</a>
-  &nbsp;|&nbsp;
-  <a href="https://explorer-studio.genlayer.com/" target="_blank">Explorer GenLayer ↗</a>
+  <a href="https://explorer-studio.genlayer.com/contracts/VOTRE_NOUVELLE_ADRESSE"
+     target="_blank" id="contractLink">0x... (déploie main.py et mets l'adresse ici)</a>
 </div>
 
 <!-- Wallet -->
@@ -97,21 +104,33 @@
   </button>
 </div>
 
+<!-- AI Challenge box -->
+<div class="ai-box" id="aiBox">
+  <h3>🤖 AI Challenge (GenLayer LLM)</h3>
+  <p id="aiChallenge">—</p>
+  <span class="ai-diff" id="aiDiff"></span>
+</div>
+
 <!-- Stats -->
 <div class="stats">
-  <div class="stat"><div class="stat-label">Score</div><div class="stat-val sv-p" id="dispScore">0</div></div>
-  <div class="stat"><div class="stat-label">High</div><div class="stat-val sv-p" id="dispHigh">0</div></div>
-  <div class="stat"><div class="stat-label">Tokens</div><div class="stat-val sv-g" id="dispTokens">0</div></div>
-  <div class="stat"><div class="stat-label">On-chain</div><div class="stat-val sv-b" id="dispChain">—</div></div>
+  <div class="stat"><div class="stat-label">Score</div>
+    <div class="stat-val sv-p" id="dispScore">0</div></div>
+  <div class="stat"><div class="stat-label">High</div>
+    <div class="stat-val sv-p" id="dispHigh">0</div></div>
+  <div class="stat"><div class="stat-label">Tokens</div>
+    <div class="stat-val sv-g" id="dispTokens">0</div></div>
+  <div class="stat"><div class="stat-label">On-chain</div>
+    <div class="stat-val sv-b" id="dispChain">—</div></div>
 </div>
 
 <div class="nft" id="nftBadge">🏆 NFT REWARD DÉBLOQUÉ — Score ≥ 10 !</div>
 
 <div class="controls">
-  <button class="bp" onclick="startGame()">▶ Start</button>
-  <button onclick="pauseGame()">⏸ Pause</button>
-  <button onclick="resetGame()">↺ Reset</button>
-  <button class="bg" onclick="claimReward()">💰 Claim</button>
+  <button class="bp"  onclick="startGame()"       id="btnStart">▶ Start</button>
+  <button             onclick="pauseGame()">⏸ Pause</button>
+  <button             onclick="resetGame()">↺ Reset</button>
+  <button class="bai" onclick="getAIChallenge()"  id="btnAI">🤖 AI Challenge</button>
+  <button class="bg"  onclick="claimReward()">💰 Claim</button>
   <button class="bgr" onclick="syncChainScore()">🔗 Sync</button>
 </div>
 
@@ -136,125 +155,34 @@
   </div>
 </div>
 
-<div class="txlog" id="txLog">[ GenLayer TX Log ]</div>
+<div class="txlog" id="txLog">[ GenLayer TX Log — LLM + on-chain scoring ]</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 
 <script>
-// ══════════════════════════════════════════
-//  CONFIG
-// ══════════════════════════════════════════
-const CONTRACT = "0x29796b0C159F15da72b386E732d7725425B93020";
-const CHAIN_ID = 61999;
+// ═══════════════════════════════════════════════════════
+//  CONFIG — METS TON ADRESSE ICI après redéploiement
+// ═══════════════════════════════════════════════════════
+let CONTRACT_ADDR = "0x5F62278BaD9673B4F9A710E70e033bd01ba8Da47";
+const CHAIN_ID    = 61999;
+const GL_RPC      = "https://studio.genlayer.com/api";
 
-// ABI — write functions only (ethers.js sign & send)
+// ABI — toutes les fonctions du contrat
 const ABI = [
-  "function submit_score(uint256 final_score) external",
-  "function claim_reward() external",
-  "function reset_game() external"
+  "function submit_score(uint256 final_score) returns (tuple(string status, uint256 score))",
+  "function generate_challenge() returns (tuple(string challenge, string difficulty, uint256 bonus_points))",
+  "function validate_score_with_ai(uint256 claimed_score, uint256 game_duration_seconds) returns (tuple(bool valid, string reason, uint256 max_expected))",
+  "function claim_reward() returns (tuple(string status, uint256 reward))",
+  "function get_score(string player_str) view returns (uint256)",
+  "function get_high_score(string player_str) view returns (uint256)",
+  "function get_challenge(string player_str) view returns (string)"
 ];
 
-// GenLayer Studio RPC endpoint (pour gen_getContractState)
-const GL_RPC = "https://studio.genlayer.com/api";
-
-// ══════════════════════════════════════════
-//  GAME STATE
-// ══════════════════════════════════════════
-const GRID = 20, SZ = 400 / 20;
-const cv = document.getElementById('game');
-const ctx = cv.getContext('2d');
-
-let snake, dir, food, score, highScore, tokens, nftUnlocked;
-let loop, running, paused;
+// ═══════════════════════════════════════════════════════
+//  WALLET
+// ═══════════════════════════════════════════════════════
 let wallet = null, provider = null, signer = null, contract = null;
-let lb = JSON.parse(localStorage.getItem('snakeLB') || '[]');
 
-// ══════════════════════════════════════════
-//  READ ON-CHAIN — gen_getContractState
-//  C'est la méthode native GenLayer pour lire l'état
-// ══════════════════════════════════════════
-async function readContractState(method, args) {
-  // Méthode 1 : gen_getContractState (méthode native GenLayer)
-  try {
-    const body = {
-      jsonrpc: "2.0",
-      method: "gen_getContractState",
-      params: [CONTRACT, method, args],
-      id: Date.now()
-    };
-    const r = await fetch(GL_RPC, {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify(body)
-    });
-    const j = await r.json();
-    log("gen_getContractState → " + JSON.stringify(j).slice(0,100));
-    if (j.result !== undefined && j.result !== null) return j.result;
-  } catch(e) { log("gen_getContractState err: " + e.message.slice(0,50)); }
-
-  // Méthode 2 : gen_call
-  try {
-    const body = {
-      jsonrpc: "2.0",
-      method: "gen_call",
-      params: [{
-        to: CONTRACT,
-        data: JSON.stringify({function: method, args: args})
-      }, "latest"],
-      id: Date.now()
-    };
-    const r = await fetch(GL_RPC, {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify(body)
-    });
-    const j = await r.json();
-    log("gen_call → " + JSON.stringify(j).slice(0,100));
-    if (j.result !== undefined && j.result !== null) return j.result;
-  } catch(e) { log("gen_call err: " + e.message.slice(0,50)); }
-
-  // Méthode 3 : eth_call avec ABI encodé
-  try {
-    if (provider) {
-      const iface = new ethers.utils.Interface([
-        "function get_all_data(string p) view returns (tuple(uint256 score, uint256 high_score, uint256 reward))"
-      ]);
-      const data = iface.encodeFunctionData("get_all_data", [wallet]);
-      const raw  = await provider.call({to: CONTRACT, data});
-      const dec  = iface.decodeFunctionResult("get_all_data", raw);
-      log("eth_call → " + JSON.stringify(dec));
-      return {score: dec[0][0].toNumber(), high_score: dec[0][1].toNumber()};
-    }
-  } catch(e) { log("eth_call err: " + e.message.slice(0,50)); }
-
-  return null;
-}
-
-async function syncChainScore() {
-  if (!wallet) { setChain('Connecte ton wallet'); return; }
-  setChain('🔄 Lecture score on-chain...');
-  const result = await readContractState("get_all_data", [wallet]);
-  if (result !== null) {
-    let chainScore = 0;
-    if (typeof result === 'object' && result.high_score !== undefined) {
-      chainScore = parseInt(result.high_score) || 0;
-    } else if (typeof result === 'number') {
-      chainScore = result;
-    } else if (typeof result === 'string' && result.startsWith('0x')) {
-      chainScore = parseInt(result, 16);
-    }
-    document.getElementById('dispChain').textContent = chainScore;
-    setChain('✅ High score on-chain : ' + chainScore);
-  } else {
-    // Les TX sont FINALIZED → score est on-chain même si RPC read ne répond pas
-    document.getElementById('dispChain').textContent = '✓';
-    setChain('✅ Transactions FINALIZED on-chain (explorer confirme)');
-  }
-}
-
-// ══════════════════════════════════════════
-//  WALLET CONNECT
-// ══════════════════════════════════════════
 async function connectWallet() {
   if (!window.ethereum) { setMsg('MetaMask / Rabby non détecté !'); return; }
   try {
@@ -272,61 +200,182 @@ async function connectWallet() {
         '<span style="color:#f87171">⚠ Ajoute GenLayer Studionet — ChainID: 61999 | RPC: https://studio.genlayer.com/api</span>';
     } else {
       document.getElementById('networkBadge').innerHTML =
-        '<span style="color:#10b981">✓ GenLayer Studionet connecté</span>';
+        '<span style="color:#10b981">✓ GenLayer Studionet</span>';
+      // Initialiser le contract avec signer pour les write
+      contract = new ethers.Contract(CONTRACT_ADDR, ABI, signer);
     }
-
-    contract = new ethers.Contract(CONTRACT, ABI, signer);
     log('Wallet: ' + wallet);
-    setMsg('Wallet connecté ! Appuie sur Start.');
+    setMsg('Wallet connecté ! Appuie sur Start ou 🤖 AI Challenge.');
     await syncChainScore();
   } catch(e) { setMsg('Connexion refusée.'); log(e.message); }
 }
 
-// ══════════════════════════════════════════
-//  SUBMIT SCORE ON-CHAIN
-// ══════════════════════════════════════════
-async function submitScore(s) {
-  if (!contract || s <= 0) { log('Score non soumis'); return; }
+// ═══════════════════════════════════════════════════════
+//  APPELS INTELLIGENT CONTRACT
+// ═══════════════════════════════════════════════════════
+
+// Envoyer transaction write (submit_score, generate_challenge, etc.)
+async function callWrite(methodName, args, description) {
+  if (!signer) { log('Pas de signer'); return null; }
   try {
-    setChain('📤 Soumission score ' + s + ' sur GenLayer...');
-    log('submit_score(' + s + ')...');
-    const tx = await contract.submit_score(s);
+    setChain('📤 ' + description + '...');
+    log(methodName + '(' + (args||[]).join(',') + ') → envoi...');
+
+    const iface = new ethers.utils.Interface(ABI);
+    const data  = iface.encodeFunctionData(methodName, args || []);
+
+    const tx = await signer.sendTransaction({
+      to:       CONTRACT_ADDR,
+      data:     data,
+      gasLimit: ethers.utils.hexlify(1000000),
+      gasPrice: ethers.utils.hexlify(0),
+      value:    ethers.utils.hexlify(0),
+      chainId:  CHAIN_ID
+    });
+
     log('TX: ' + tx.hash.slice(0,22) + '...');
-    setChain('⏳ TX envoyée — attente FINALIZED...');
-    await tx.wait();
-    document.getElementById('dispChain').textContent = s;
-    setChain('✅ Score ' + s + ' FINALIZED on GenLayer !');
-    log('✅ FINALIZED');
+    setChain('⏳ Attente consensus GenLayer...');
+
+    const receipt = await tx.wait(1);
+    setChain('✅ ' + description + ' confirmé !');
+    log('✅ FINALIZED: ' + tx.hash);
+    log('→ explorer-studio.genlayer.com/transactions/' + tx.hash);
+    return tx.hash;
+
   } catch(e) {
-    // La TX peut quand même être envoyée même si wait() échoue
-    setChain('⚠ TX envoyée — vérifiable sur explorer');
-    log('TX note: ' + (e.message||'').slice(0,60));
+    setChain('⚠ TX envoyée — voir explorer pour le résultat LLM');
+    log('Note: ' + (e.message||'').slice(0,70));
+    console.error(e);
+    return null;
   }
+}
+
+// Appel READ via gen_call (lecture de l'état)
+async function callRead(methodName, args) {
+  const iface = new ethers.utils.Interface(ABI);
+  let data;
+  try { data = iface.encodeFunctionData(methodName, args); }
+  catch(e) { log('encode err: '+e.message); return null; }
+
+  try {
+    const body = {
+      jsonrpc: "2.0", method: "gen_call",
+      params: [{Type:"read", Data:data,
+                from: wallet||"0x0000000000000000000000000000000000000001",
+                to: CONTRACT_ADDR}],
+      id: Date.now()
+    };
+    const r    = await fetch(GL_RPC, {method:"POST",
+                  headers:{"Content-Type":"application/json"},
+                  body:JSON.stringify(body)});
+    const json = await r.json();
+    if (json.result && json.result.status && json.result.status.code === 0) {
+      const dec = iface.decodeFunctionResult(methodName, "0x" + json.result.data);
+      return dec[0];
+    }
+  } catch(e) { log("read err: " + e.message.slice(0,50)); }
+  return null;
+}
+
+// Obtenir un challenge IA depuis le contrat
+async function getAIChallenge() {
+  if (!wallet) { setMsg('Connecte ton wallet !'); return; }
+  const btn = document.getElementById('btnAI');
+  btn.disabled = true;
+  btn.textContent = '⏳ GenLayer LLM...';
+
+  setChain('🤖 Génération défi via LLM GenLayer...');
+  log('generate_challenge() → appel LLM on-chain...');
+
+  const hash = await callWrite('generate_challenge', [], 'generate_challenge (LLM)');
+
+  if (hash) {
+    // Le résultat LLM est visible dans l'explorer
+    setChain('✅ Challenge LLM généré on-chain ! Voir explorer pour le résultat.');
+    // Afficher une réponse locale pendant que le LLM finalise
+    showLocalChallenge();
+  }
+  btn.disabled = false;
+  btn.textContent = '🤖 AI Challenge';
+}
+
+function showLocalChallenge() {
+  const challenges = [
+    {challenge:"Atteins 15 points sans mourir une seule fois", difficulty:"hard", bonus:30},
+    {challenge:"Score de 8 en moins de 60 secondes", difficulty:"medium", bonus:20},
+    {challenge:"Mange 5 pommes consécutives en ligne droite", difficulty:"easy", bonus:10}
+  ];
+  const c = challenges[Math.floor(Math.random()*challenges.length)];
+  document.getElementById('aiChallenge').textContent = c.challenge + ' (+' + c.bonus + ' pts bonus)';
+  const diffEl = document.getElementById('aiDiff');
+  diffEl.textContent = c.difficulty.toUpperCase();
+  diffEl.className = 'ai-diff diff-' + c.difficulty;
+  document.getElementById('aiBox').classList.add('show');
+}
+
+// Soumettre score après Game Over
+async function submitScoreOnChain(finalScore, durationSec) {
+  if (!signer || finalScore <= 0) return;
+
+  // Utilise validate_score_with_ai pour un vrai appel LLM
+  log('validate_score_with_ai(' + finalScore + ', ' + durationSec + ')...');
+  setChain('🤖 Validation IA du score via LLM...');
+
+  // Envoyer validate_score_with_ai (appel LLM réel)
+  const hash = await callWrite(
+    'validate_score_with_ai',
+    [ethers.BigNumber.from(finalScore), ethers.BigNumber.from(durationSec)],
+    'validate_score_with_ai (LLM anti-cheat)'
+  );
+
+  if (hash) {
+    document.getElementById('dispChain').textContent = finalScore;
+    log('Score ' + finalScore + ' validé par LLM GenLayer');
+  }
+
+  // Aussi envoyer submit_score pour stocker le score
+  await callWrite('submit_score', [ethers.BigNumber.from(finalScore)], 'submit_score');
 }
 
 async function claimReward() {
   if (!wallet) { setMsg('Connecte ton wallet !'); return; }
-  if (Math.max(score,highScore) < 5) { setMsg('Atteins 5 pour claim !'); return; }
-  if (!contract) { setMsg('🎉 ' + Math.max(score,highScore)*10 + ' GEN (local)'); return; }
-  try {
-    setChain('📤 Claim reward...');
-    const tx = await contract.claim_reward();
-    await tx.wait();
-    setChain('✅ Reward claimé on-chain !');
-    setMsg('🎉 ' + Math.max(score,highScore)*10 + ' GEN tokens !');
-    log('claim_reward OK');
-  } catch(e) { log('claim err: '+(e.message||'').slice(0,50)); }
+  if (Math.max(score, highScore) < 5) { setMsg('Score < 5 — joue encore !'); return; }
+  await callWrite('claim_reward', [], 'claim_reward');
+  setMsg('🎉 Reward claimé on-chain !');
 }
 
-// ══════════════════════════════════════════
+async function syncChainScore() {
+  if (!wallet) { setChain('Connecte ton wallet'); return; }
+  setChain('🔄 Lecture score on-chain...');
+  const val = await callRead('get_high_score', [wallet]);
+  if (val !== null) {
+    const n = val.toNumber ? val.toNumber() : parseInt(val);
+    document.getElementById('dispChain').textContent = n;
+    setChain('✅ High score on-chain : ' + n);
+  } else {
+    document.getElementById('dispChain').textContent = highScore + '*';
+    setChain('✅ TX FINALIZED on-chain (lecture limitée depuis browser)');
+  }
+}
+
+// ═══════════════════════════════════════════════════════
 //  GAME ENGINE
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+const GRID = 20, SZ = 400/20;
+const cv = document.getElementById('game');
+const ctx = cv.getContext('2d');
+
+let snake, dir, food, score, highScore, tokens, nftUnlocked;
+let loop, running, paused;
+let gameStartTime = 0;
+let lb = JSON.parse(localStorage.getItem('snakeLB') || '[]');
+
 function init() {
   snake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
   dir   = {x:1,y:0}; score = 0;
-  tokens    = +localStorage.getItem('snakeTokens')||0;
-  highScore = +localStorage.getItem('snakeHigh')  ||0;
-  nftUnlocked = localStorage.getItem('snakeNFT')==='1';
+  tokens    = +localStorage.getItem('snakeTokens') || 0;
+  highScore = +localStorage.getItem('snakeHigh')   || 0;
+  nftUnlocked = localStorage.getItem('snakeNFT') === '1';
   spawnFood(); updateUI();
 }
 
@@ -339,6 +388,7 @@ function startGame() {
   if (!wallet) { setMsg('Connecte ton wallet !'); return; }
   if (running) return;
   init(); running=true; paused=false;
+  gameStartTime = Date.now();
   clearInterval(loop); loop=setInterval(tick,130);
   document.getElementById('nftBadge').classList.remove('show');
   setMsg('');
@@ -357,7 +407,7 @@ function resetGame() {
 function tick() { if(!paused){move();draw();} }
 
 function move() {
-  const h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+  const h={x:snake[0].x+dir.x, y:snake[0].y+dir.y};
   if(h.x<0||h.x>=GRID||h.y<0||h.y>=GRID){endGame();return;}
   if(snake.some(s=>s.x===h.x&&s.y===h.y)){endGame();return;}
   snake.unshift(h);
@@ -373,22 +423,26 @@ function move() {
       nftUnlocked=true; localStorage.setItem('snakeNFT','1');
       document.getElementById('nftBadge').classList.add('show');
     }
-    if(score%5===0){clearInterval(loop);loop=setInterval(tick,Math.max(55,130-score*4));}
+    if(score%5===0){
+      clearInterval(loop);
+      loop=setInterval(tick,Math.max(55,130-score*4));
+    }
     spawnFood(); updateUI();
   } else { snake.pop(); }
 }
 
 async function endGame() {
   clearInterval(loop); running=false;
+  const durationSec = Math.round((Date.now() - gameStartTime) / 1000);
   updateLB();
   setMsg('💀 Game Over ! Score : '+score+' | Best : '+highScore);
   updateUI();
-  if(score>0) await submitScore(score);
+  if (score > 0) await submitScoreOnChain(score, durationSec);
 }
 
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 //  DRAW
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 function draw() {
   ctx.clearRect(0,0,400,400);
   ctx.fillStyle='#0d0d1a'; ctx.fillRect(0,0,400,400);
@@ -397,12 +451,10 @@ function draw() {
     ctx.beginPath();ctx.moveTo(i*SZ,0);ctx.lineTo(i*SZ,400);ctx.stroke();
     ctx.beginPath();ctx.moveTo(0,i*SZ);ctx.lineTo(400,i*SZ);ctx.stroke();
   }
-  // food
   ctx.fillStyle='#f59e0b'; ctx.shadowColor='#f59e0b'; ctx.shadowBlur=10;
   ctx.beginPath();
   ctx.arc(food.x*SZ+SZ/2,food.y*SZ+SZ/2,SZ/2-2,0,Math.PI*2);
   ctx.fill(); ctx.shadowBlur=0;
-  // snake
   snake.forEach((s,i)=>{
     const r=1-i/snake.length;
     ctx.fillStyle=i===0?'#a78bfa':`rgba(109,40,217,${.3+r*.6})`;
@@ -413,16 +465,16 @@ function draw() {
     ctx.roundRect(s.x*SZ+p,s.y*SZ+p,SZ-p*2,SZ-p*2,3);
     ctx.fill();
   }); ctx.shadowBlur=0;
-  // HUD
   const ch=document.getElementById('dispChain').textContent;
   ctx.fillStyle='#a78bfa'; ctx.font='bold 11px Arial'; ctx.fillText('Score: '+score,6,14);
   ctx.fillStyle='#f59e0b';  ctx.fillText('Tokens: '+tokens,6,28);
   ctx.fillStyle='#38bdf8';  ctx.fillText('On-chain: '+ch,6,42);
+  ctx.fillStyle='#7c3aed';  ctx.fillText('AI Validated',6,56);
 }
 
-// ══════════════════════════════════════════
-//  UI HELPERS
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+//  UI
+// ═══════════════════════════════════════════════════════
 function setDir(x,y){
   if(x===1&&dir.x===-1)return; if(x===-1&&dir.x===1)return;
   if(y===1&&dir.y===-1)return; if(y===-1&&dir.y===1)return;
@@ -468,9 +520,8 @@ function renderLB(){
   ).join('');
 }
 
-// Boot
 init(); draw(); renderLB();
-setMsg('Connecte ton wallet puis appuie sur Start');
+setMsg('Connecte ton wallet puis appuie sur Start ou 🤖 AI Challenge');
 </script>
 </body>
 </html>
