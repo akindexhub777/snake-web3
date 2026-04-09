@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Snake Web3 — GenLayer AI</title>
+  <title>Snake Web3 — GenLayer</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{background:#0a0a0f;color:#e0e0e0;font-family:Arial,sans-serif;
@@ -16,30 +16,17 @@
     #walletAddr{font-size:11px;color:#7c3aed;word-break:break-all;margin-top:4px;min-height:16px}
     #networkBadge{font-size:10px;margin-top:3px;min-height:14px}
 
-    /* Challenge AI box */
-    .ai-box{background:#0d0d1a;border:1px solid #4c1d95;border-radius:10px;
-            padding:10px 14px;width:100%;max-width:440px;margin-bottom:8px;
-            display:none}
-    .ai-box.show{display:block}
-    .ai-box h3{font-size:10px;color:#7c3aed;text-transform:uppercase;margin-bottom:5px}
-    .ai-box p{font-size:12px;color:#c4b5fd;line-height:1.5}
-    .ai-diff{display:inline-block;font-size:10px;padding:2px 7px;border-radius:4px;
-             margin-top:4px;font-weight:bold}
-    .diff-easy{background:#064e3b;color:#10b981}
-    .diff-medium{background:#78350f;color:#fbbf24}
-    .diff-hard{background:#7f1d1d;color:#f87171}
-
     .stats{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;justify-content:center}
     .stat{background:#111128;border:1px solid #2d2d4e;border-radius:8px;
-          padding:7px 12px;text-align:center;min-width:74px}
+          padding:7px 12px;text-align:center;min-width:76px}
     .stat-label{font-size:10px;color:#666}
     .stat-val{font-size:17px;font-weight:bold}
     .sv-p{color:#a78bfa}.sv-g{color:#f59e0b}.sv-b{color:#38bdf8}
 
     .contract-info{background:#111128;border:1px solid #2d2d4e;border-radius:8px;
-                   padding:7px 12px;width:100%;max-width:440px;margin-bottom:8px;
-                   font-size:10px;color:#666}
+                   padding:7px 12px;width:100%;max-width:440px;margin-bottom:8px;font-size:10px;color:#666}
     .contract-info a{color:#7c3aed;text-decoration:none}
+    .contract-info a:hover{text-decoration:underline}
 
     canvas{border:2px solid #2d2d4e;border-radius:10px;display:block;background:#0d0d1a}
 
@@ -47,16 +34,21 @@
     button{padding:8px 14px;border-radius:8px;border:1px solid #2d2d4e;
            background:#111128;color:#e0e0e0;cursor:pointer;font-size:12px;transition:all .2s}
     button:hover{background:#1e1e3f;border-color:#7c3aed}
-    button:disabled{opacity:.35;cursor:not-allowed}
     .bp{background:#7c3aed;border-color:#7c3aed;color:#fff}.bp:hover{background:#6d28d9}
     .bg{background:#92400e;border-color:#f59e0b;color:#fde68a}.bg:hover{background:#78350f}
-    .bai{background:#1e1b4b;border-color:#7c3aed;color:#c4b5fd}.bai:hover{background:#2e2b5b}
     .bgr{background:#065f46;border-color:#10b981;color:#6ee7b7}.bgr:hover{background:#047857}
 
-    #msg{font-size:12px;color:#f59e0b;min-height:16px;margin:3px 0;
-         text-align:center;max-width:440px}
-    #chainMsg{font-size:11px;min-height:15px;text-align:center;
-              margin-bottom:3px;color:#38bdf8;max-width:440px}
+    #msg{font-size:12px;color:#f59e0b;min-height:16px;margin:3px 0;text-align:center;max-width:440px}
+    #chainMsg{font-size:11px;min-height:15px;text-align:center;margin-bottom:3px;
+              color:#38bdf8;max-width:440px}
+
+    /* AI Taunt box */
+    .taunt-box{background:#111128;border:1px solid #7c3aed;border-radius:8px;
+               padding:8px 12px;width:100%;max-width:440px;margin:4px 0;
+               font-size:12px;color:#a78bfa;text-align:center;display:none;
+               font-style:italic}
+    .taunt-box.show{display:block}
+    .taunt-label{font-size:9px;color:#555;text-transform:uppercase;margin-bottom:3px}
 
     .nft{display:none;background:#064e3b;border:1px solid #10b981;border-radius:8px;
          padding:7px 14px;text-align:center;margin:5px 0;color:#10b981;
@@ -80,22 +72,22 @@
 
     .txlog{background:#0d0d1a;border:1px solid #1a1a2e;border-radius:7px;
            padding:6px;width:100%;max-width:440px;margin-top:6px;
-           font-size:10px;color:#555;max-height:80px;overflow-y:auto;
+           font-size:10px;color:#555;max-height:65px;overflow-y:auto;
            font-family:monospace;white-space:pre-wrap}
   </style>
 </head>
 <body>
 
-<h1>🐍 Snake Web3 AI</h1>
-<p class="sub">LLM-powered Intelligent Contract · GenLayer Studionet · Hackathon 2026</p>
+<h1>🐍 Snake Web3</h1>
+<p class="sub">AI-powered · GenLayer Intelligent Contract · Hackathon 2026</p>
 
 <div class="contract-info">
-  📄 Contract :
-  <a href="https://explorer-studio.genlayer.com/address/0x5F62278BaD9673B4F9A710E70e033bd01ba8Da47"
-     target="_blank" id="contractLink">0x5F62278BaD9673B4F9A710E70e033bd01ba8Da47)</a>
+  📄 Contract : <a href="https://studio.genlayer.com/?import-contract=0xdE00F7F2d6488e1D766B1e5507781d77a7d91849" target="_blank" id="contractLink">Loading...</a>
+  &nbsp;·&nbsp;
+  <a href="https://explorer-studio.genlayer.com/" target="_blank">Explorer ↗</a>
+  &nbsp;·&nbsp;Type: <strong style="color:#a78bfa">Intelligent Contract</strong>
 </div>
 
-<!-- Wallet -->
 <div class="wallet-box">
   <div id="walletAddr">Non connecté</div>
   <div id="networkBadge"></div>
@@ -104,18 +96,10 @@
   </button>
 </div>
 
-<!-- AI Challenge box -->
-<div class="ai-box" id="aiBox">
-  <h3>🤖 AI Challenge (GenLayer LLM)</h3>
-  <p id="aiChallenge">—</p>
-  <span class="ai-diff" id="aiDiff"></span>
-</div>
-
-<!-- Stats -->
 <div class="stats">
   <div class="stat"><div class="stat-label">Score</div>
     <div class="stat-val sv-p" id="dispScore">0</div></div>
-  <div class="stat"><div class="stat-label">High</div>
+  <div class="stat"><div class="stat-label">Best</div>
     <div class="stat-val sv-p" id="dispHigh">0</div></div>
   <div class="stat"><div class="stat-label">Tokens</div>
     <div class="stat-val sv-g" id="dispTokens">0</div></div>
@@ -123,15 +107,20 @@
     <div class="stat-val sv-b" id="dispChain">—</div></div>
 </div>
 
+<!-- AI Taunt — GenLayer LLM feature -->
+<div class="taunt-box" id="tauntBox">
+  <div class="taunt-label">🤖 AI Taunt (GenLayer LLM)</div>
+  <div id="tauntText">...</div>
+</div>
+
 <div class="nft" id="nftBadge">🏆 NFT REWARD DÉBLOQUÉ — Score ≥ 10 !</div>
 
 <div class="controls">
-  <button class="bp"  onclick="startGame()"       id="btnStart">▶ Start</button>
-  <button             onclick="pauseGame()">⏸ Pause</button>
-  <button             onclick="resetGame()">↺ Reset</button>
-  <button class="bai" onclick="getAIChallenge()"  id="btnAI">🤖 AI Challenge</button>
-  <button class="bg"  onclick="claimReward()">💰 Claim</button>
-  <button class="bgr" onclick="syncChainScore()">🔗 Sync</button>
+  <button class="bp" onclick="startGame()">▶ Start</button>
+  <button onclick="pauseGame()">⏸ Pause</button>
+  <button onclick="resetGame()">↺ Reset</button>
+  <button class="bg" onclick="claimReward()">💰 Claim</button>
+  <button class="bgr" onclick="syncChainData()">🔗 Sync</button>
 </div>
 
 <div id="msg">Connecte ton wallet puis appuie sur Start</div>
@@ -155,33 +144,44 @@
   </div>
 </div>
 
-<div class="txlog" id="txLog">[ GenLayer TX Log — LLM + on-chain scoring ]</div>
+<div class="txlog" id="txLog">[ GenLayer TX Log — writeContract / readContract ]</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 
 <script>
-// ═══════════════════════════════════════════════════════
-//  CONFIG — METS TON ADRESSE ICI après redéploiement
-// ═══════════════════════════════════════════════════════
-let CONTRACT_ADDR = "0x5F62278BaD9673B4F9A710E70e033bd01ba8Da47";
-const CHAIN_ID    = 61999;
-const GL_RPC      = "https://studio.genlayer.com/api";
+// ═══════════════════════════════════════════
+//  CONFIG — Intelligent Contract GenLayer
+//  Remplace CONTRACT_ADDR
+// ═══════════════════════════════════════════
+const CONTRACT_ADDR = "0xdE00F7F2d6488e1D766B1e5507781d77a7d91849";
+const CHAIN_ID      = 61999;
+const GL_RPC        = "https://studio.genlayer.com/api";
 
-// ABI — toutes les fonctions du contrat
+// Met à jour le lien dans la page
+document.getElementById('contractLink').textContent = CONTRACT_ADDR.slice(0,8)+'...'+CONTRACT_ADDR.slice(-6);
+document.getElementById('contractLink').href =
+  'https://explorer-studio.genlayer.com/contracts/' + CONTRACT_ADDR;
+
+// ABI complet de l'Intelligent Contract
 const ABI = [
-  "function submit_score(uint256 final_score) returns (tuple(string status, uint256 score))",
-  "function generate_challenge() returns (tuple(string challenge, string difficulty, uint256 bonus_points))",
-  "function validate_score_with_ai(uint256 claimed_score, uint256 game_duration_seconds) returns (tuple(bool valid, string reason, uint256 max_expected))",
-  "function claim_reward() returns (tuple(string status, uint256 reward))",
+  // writeContract — modifient l'état (consensus + LLM)
+  "function submit_score(uint256 final_score) external",
+  "function claim_reward() external",
+  "function reset_game() external",
+  // readContract — lecture d'état
   "function get_score(string player_str) view returns (uint256)",
   "function get_high_score(string player_str) view returns (uint256)",
-  "function get_challenge(string player_str) view returns (string)"
+  "function get_reward(string player_str) view returns (uint256)",
+  "function get_taunt(string player_str) view returns (string)",
+  "function get_player_data(string player_str) view returns (tuple(uint256 score, uint256 high_score, uint256 reward, string taunt))"
 ];
 
-// ═══════════════════════════════════════════════════════
-//  WALLET
-// ═══════════════════════════════════════════════════════
-let wallet = null, provider = null, signer = null, contract = null;
+// ═══════════════════════════════════════════
+//  WALLET & CONTRACT
+// ═══════════════════════════════════════════
+let wallet = null, provider = null, signer = null;
+let writeContract = null;  // pour writeContract (signer)
+let readIface = null;       // pour readContract (gen_call)
 
 async function connectWallet() {
   if (!window.ethereum) { setMsg('MetaMask / Rabby non détecté !'); return; }
@@ -192,7 +192,7 @@ async function connectWallet() {
     wallet   = await signer.getAddress();
 
     document.getElementById('walletAddr').textContent =
-      wallet.slice(0,6) + '...' + wallet.slice(-4) + ' ✓';
+      wallet.slice(0,6)+'...'+wallet.slice(-4)+' ✓';
 
     const net = await provider.getNetwork();
     if (net.chainId !== CHAIN_ID) {
@@ -201,283 +201,251 @@ async function connectWallet() {
     } else {
       document.getElementById('networkBadge').innerHTML =
         '<span style="color:#10b981">✓ GenLayer Studionet</span>';
-      // Initialiser le contract avec signer pour les write
-      contract = new ethers.Contract(CONTRACT_ADDR, ABI, signer);
     }
-    log('Wallet: ' + wallet);
-    setMsg('Wallet connecté ! Appuie sur Start ou 🤖 AI Challenge.');
-    await syncChainScore();
+
+    // writeContract — utilise signer pour envoyer des TX (Call vers l'intelligent contract)
+    writeContract = new ethers.Contract(CONTRACT_ADDR, ABI, signer);
+    readIface     = new ethers.utils.Interface(ABI);
+
+    log('Wallet connecté: ' + wallet);
+    log('writeContract initialisé → ' + CONTRACT_ADDR);
+    setMsg('Wallet connecté ! Appuie sur Start.');
+    await syncChainData();
+
   } catch(e) { setMsg('Connexion refusée.'); log(e.message); }
 }
 
-// ═══════════════════════════════════════════════════════
-//  APPELS INTELLIGENT CONTRACT
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  readContract — gen_call GenLayer
+//  Lit l'état de l'intelligent contract
+// ═══════════════════════════════════════════
+async function readContract(functionName, args) {
+  if (!wallet) return null;
 
-// Envoyer transaction write (submit_score, generate_challenge, etc.)
-async function callWrite(methodName, args, description) {
-  if (!signer) { log('Pas de signer'); return null; }
+  const data = readIface.encodeFunctionData(functionName, args);
+  log('readContract: ' + functionName + '(' + args.join(',') + ')');
+
+  // Méthode 1: gen_call GenLayer RPC
   try {
-    setChain('📤 ' + description + '...');
-    log(methodName + '(' + (args||[]).join(',') + ') → envoi...');
-
-    const iface = new ethers.utils.Interface(ABI);
-    const data  = iface.encodeFunctionData(methodName, args || []);
-
-    const tx = await signer.sendTransaction({
-      to:       CONTRACT_ADDR,
-      data:     data,
-      gasLimit: ethers.utils.hexlify(1000000),
-      gasPrice: ethers.utils.hexlify(0),
-      value:    ethers.utils.hexlify(0),
-      chainId:  CHAIN_ID
+    const resp = await fetch(GL_RPC, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        method: "gen_call",
+        params: [{Type:"read", Data: data, from: wallet, to: CONTRACT_ADDR}],
+        id: Date.now()
+      })
     });
+    const json = await resp.json();
+    log('gen_call result: ' + JSON.stringify(json.result || json.error || '').slice(0,100));
 
-    log('TX: ' + tx.hash.slice(0,22) + '...');
-    setChain('⏳ Attente consensus GenLayer...');
+    if (json.result && json.result.status && json.result.status.code === 0 && json.result.data) {
+      const decoded = readIface.decodeFunctionResult(functionName, '0x' + json.result.data);
+      return decoded[0];
+    }
+  } catch(e) { log('gen_call err: ' + e.message.slice(0,50)); }
+
+  // Méthode 2: eth_call via provider
+  try {
+    const raw = await provider.call({to: CONTRACT_ADDR, data});
+    const dec = readIface.decodeFunctionResult(functionName, raw);
+    return dec[0];
+  } catch(e) { log('eth_call err: ' + e.message.slice(0,50)); }
+
+  return null;
+}
+
+async function syncChainData() {
+  if (!wallet) { setChain('Connecte ton wallet'); return; }
+  setChain('🔄 readContract: get_player_data...');
+
+  const data = await readContract('get_player_data', [wallet]);
+  if (data !== null) {
+    let chainHigh, taunt;
+    if (data && data.high_score !== undefined) {
+      chainHigh = data.high_score.toNumber ? data.high_score.toNumber() : parseInt(data.high_score);
+      taunt = data.taunt || '';
+    } else {
+      chainHigh = data && data[1] ? (data[1].toNumber ? data[1].toNumber() : parseInt(data[1])) : 0;
+      taunt = data && data[3] ? data[3] : '';
+    }
+    document.getElementById('dispChain').textContent = chainHigh;
+    setChain('✅ On-chain high score: ' + chainHigh);
+    if (taunt && taunt !== 'Play a game to get your taunt!') {
+      showTaunt(taunt);
+    }
+  } else {
+    document.getElementById('dispChain').textContent = highScore + '*';
+    setChain('✅ TX on-chain FINALIZED (lecture RPC browser limitée)');
+  }
+}
+
+// ═══════════════════════════════════════════
+//  writeContract — envoie TX à l'intelligent contract
+//  Déclenche consensus + LLM (GenLayer features)
+// ═══════════════════════════════════════════
+async function callWriteContract(functionName, args, description) {
+  if (!writeContract) {
+    log(description + ' — writeContract non initialisé');
+    return null;
+  }
+  try {
+    setChain('📤 writeContract: ' + description + '...');
+    log('writeContract.' + functionName + '(' + JSON.stringify(args) + ')');
+
+    const tx = await writeContract[functionName](...args);
+    log('TX hash: ' + tx.hash);
+    log('→ https://explorer-studio.genlayer.com/transactions/' + tx.hash);
+    setChain('⏳ Attente consensus + LLM (GenLayer)...');
 
     const receipt = await tx.wait(1);
-    setChain('✅ ' + description + ' confirmé !');
-    log('✅ FINALIZED: ' + tx.hash);
-    log('→ explorer-studio.genlayer.com/transactions/' + tx.hash);
+    setChain('✅ ' + description + ' — FINALIZED with consensus !');
+    log('✅ Receipt: blockNumber=' + receipt.blockNumber);
     return tx.hash;
 
   } catch(e) {
-    setChain('⚠ TX envoyée — voir explorer pour le résultat LLM');
-    log('Note: ' + (e.message||'').slice(0,70));
+    setChain('⚠ TX envoyée — voir explorer');
+    log('writeContract err: ' + (e.message||'').slice(0,80));
     console.error(e);
     return null;
   }
 }
 
-// Appel READ via gen_call (lecture de l'état)
-async function callRead(methodName, args) {
-  const iface = new ethers.utils.Interface(ABI);
-  let data;
-  try { data = iface.encodeFunctionData(methodName, args); }
-  catch(e) { log('encode err: '+e.message); return null; }
-
-  try {
-    const body = {
-      jsonrpc: "2.0", method: "gen_call",
-      params: [{Type:"read", Data:data,
-                from: wallet||"0x0000000000000000000000000000000000000001",
-                to: CONTRACT_ADDR}],
-      id: Date.now()
-    };
-    const r    = await fetch(GL_RPC, {method:"POST",
-                  headers:{"Content-Type":"application/json"},
-                  body:JSON.stringify(body)});
-    const json = await r.json();
-    if (json.result && json.result.status && json.result.status.code === 0) {
-      const dec = iface.decodeFunctionResult(methodName, "0x" + json.result.data);
-      return dec[0];
-    }
-  } catch(e) { log("read err: " + e.message.slice(0,50)); }
-  return null;
-}
-
-// Obtenir un challenge IA depuis le contrat
-async function getAIChallenge() {
-  if (!wallet) { setMsg('Connecte ton wallet !'); return; }
-  const btn = document.getElementById('btnAI');
-  btn.disabled = true;
-  btn.textContent = '⏳ GenLayer LLM...';
-
-  setChain('🤖 Génération défi via LLM GenLayer...');
-  log('generate_challenge() → appel LLM on-chain...');
-
-  const hash = await callWrite('generate_challenge', [], 'generate_challenge (LLM)');
-
-  if (hash) {
-    // Le résultat LLM est visible dans l'explorer
-    setChain('✅ Challenge LLM généré on-chain ! Voir explorer pour le résultat.');
-    // Afficher une réponse locale pendant que le LLM finalise
-    showLocalChallenge();
-  }
-  btn.disabled = false;
-  btn.textContent = '🤖 AI Challenge';
-}
-
-function showLocalChallenge() {
-  const challenges = [
-    {challenge:"Atteins 15 points sans mourir une seule fois", difficulty:"hard", bonus:30},
-    {challenge:"Score de 8 en moins de 60 secondes", difficulty:"medium", bonus:20},
-    {challenge:"Mange 5 pommes consécutives en ligne droite", difficulty:"easy", bonus:10}
-  ];
-  const c = challenges[Math.floor(Math.random()*challenges.length)];
-  document.getElementById('aiChallenge').textContent = c.challenge + ' (+' + c.bonus + ' pts bonus)';
-  const diffEl = document.getElementById('aiDiff');
-  diffEl.textContent = c.difficulty.toUpperCase();
-  diffEl.className = 'ai-diff diff-' + c.difficulty;
-  document.getElementById('aiBox').classList.add('show');
-}
-
-// Soumettre score après Game Over
-async function submitScoreOnChain(finalScore, durationSec) {
-  if (!signer || finalScore <= 0) return;
-
-  // Utilise validate_score_with_ai pour un vrai appel LLM
-  log('validate_score_with_ai(' + finalScore + ', ' + durationSec + ')...');
-  setChain('🤖 Validation IA du score via LLM...');
-
-  // Envoyer validate_score_with_ai (appel LLM réel)
-  const hash = await callWrite(
-    'validate_score_with_ai',
-    [ethers.BigNumber.from(finalScore), ethers.BigNumber.from(durationSec)],
-    'validate_score_with_ai (LLM anti-cheat)'
-  );
-
+async function submitScoreOnChain(finalScore) {
+  if (!writeContract || finalScore <= 0) return;
+  // writeContract.submit_score(score) → déclenche consensus + LLM sur GenLayer
+  const hash = await callWriteContract('submit_score', [finalScore], 'submit_score(' + finalScore + ')');
   if (hash) {
     document.getElementById('dispChain').textContent = finalScore;
-    log('Score ' + finalScore + ' validé par LLM GenLayer');
+    // Lire le taunt AI généré par le LLM
+    setTimeout(async () => {
+      const taunt = await readContract('get_taunt', [wallet]);
+      if (taunt && typeof taunt === 'string' && taunt !== 'Play a game to get your taunt!') {
+        showTaunt(taunt);
+      }
+    }, 3000);
   }
-
-  // Aussi envoyer submit_score pour stocker le score
-  await callWrite('submit_score', [ethers.BigNumber.from(finalScore)], 'submit_score');
 }
 
 async function claimReward() {
   if (!wallet) { setMsg('Connecte ton wallet !'); return; }
-  if (Math.max(score, highScore) < 5) { setMsg('Score < 5 — joue encore !'); return; }
-  await callWrite('claim_reward', [], 'claim_reward');
+  if (Math.max(score, highScore) < 5) { setMsg('Score < 5 pour claim !'); return; }
+  await callWriteContract('claim_reward', [], 'claim_reward()');
   setMsg('🎉 Reward claimé on-chain !');
 }
 
-async function syncChainScore() {
-  if (!wallet) { setChain('Connecte ton wallet'); return; }
-  setChain('🔄 Lecture score on-chain...');
-  const val = await callRead('get_high_score', [wallet]);
-  if (val !== null) {
-    const n = val.toNumber ? val.toNumber() : parseInt(val);
-    document.getElementById('dispChain').textContent = n;
-    setChain('✅ High score on-chain : ' + n);
-  } else {
-    document.getElementById('dispChain').textContent = highScore + '*';
-    setChain('✅ TX FINALIZED on-chain (lecture limitée depuis browser)');
-  }
+function showTaunt(text) {
+  const box = document.getElementById('tauntBox');
+  document.getElementById('tauntText').textContent = text;
+  box.classList.add('show');
+  log('AI taunt (LLM): ' + text);
 }
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 //  GAME ENGINE
-// ═══════════════════════════════════════════════════════
-const GRID = 20, SZ = 400/20;
-const cv = document.getElementById('game');
-const ctx = cv.getContext('2d');
+// ═══════════════════════════════════════════
+const GRID=20, SZ=400/20;
+const cv=document.getElementById('game');
+const ctx=cv.getContext('2d');
 
-let snake, dir, food, score, highScore, tokens, nftUnlocked;
-let loop, running, paused;
-let gameStartTime = 0;
-let lb = JSON.parse(localStorage.getItem('snakeLB') || '[]');
+let snake,dir,food,score,highScore,tokens,nftUnlocked;
+let loop,running,paused;
+let lb=JSON.parse(localStorage.getItem('snakeLB')||'[]');
 
-function init() {
-  snake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
-  dir   = {x:1,y:0}; score = 0;
-  tokens    = +localStorage.getItem('snakeTokens') || 0;
-  highScore = +localStorage.getItem('snakeHigh')   || 0;
-  nftUnlocked = localStorage.getItem('snakeNFT') === '1';
-  spawnFood(); updateUI();
+function init(){
+  snake=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+  dir={x:1,y:0};score=0;
+  tokens=+localStorage.getItem('snakeTokens')||0;
+  highScore=+localStorage.getItem('snakeHigh')||0;
+  nftUnlocked=localStorage.getItem('snakeNFT')==='1';
+  document.getElementById('tauntBox').classList.remove('show');
+  spawnFood();updateUI();
 }
 
-function spawnFood() {
-  do { food={x:~~(Math.random()*GRID),y:~~(Math.random()*GRID)}; }
+function spawnFood(){
+  do{food={x:~~(Math.random()*GRID),y:~~(Math.random()*GRID)};}
   while(snake.some(s=>s.x===food.x&&s.y===food.y));
 }
 
-function startGame() {
-  if (!wallet) { setMsg('Connecte ton wallet !'); return; }
-  if (running) return;
-  init(); running=true; paused=false;
-  gameStartTime = Date.now();
-  clearInterval(loop); loop=setInterval(tick,130);
+function startGame(){
+  if(!wallet){setMsg('Connecte ton wallet !');return;}
+  if(running)return;
+  init();running=true;paused=false;
+  clearInterval(loop);loop=setInterval(tick,130);
   document.getElementById('nftBadge').classList.remove('show');
   setMsg('');
 }
 
-function pauseGame() {
-  if (!running) return;
-  paused=!paused; setMsg(paused?'⏸ Pause':'');
+function pauseGame(){
+  if(!running)return;
+  paused=!paused;setMsg(paused?'⏸ Pause':'');
 }
 
-function resetGame() {
-  clearInterval(loop); running=false; paused=false;
-  init(); draw(); setMsg('Appuie sur Start');
+function resetGame(){
+  clearInterval(loop);running=false;paused=false;
+  init();draw();setMsg('Appuie sur Start');
 }
 
-function tick() { if(!paused){move();draw();} }
+function tick(){if(!paused){move();draw();}}
 
-function move() {
-  const h={x:snake[0].x+dir.x, y:snake[0].y+dir.y};
+function move(){
+  const h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
   if(h.x<0||h.x>=GRID||h.y<0||h.y>=GRID){endGame();return;}
   if(snake.some(s=>s.x===h.x&&s.y===h.y)){endGame();return;}
   snake.unshift(h);
   if(h.x===food.x&&h.y===food.y){
-    score++; tokens++;
+    score++;tokens++;
     localStorage.setItem('snakeTokens',tokens);
     if(score>highScore){
-      highScore=score;
-      localStorage.setItem('snakeHigh',highScore);
-      updateLB();
+      highScore=score;localStorage.setItem('snakeHigh',highScore);updateLB();
     }
     if(score>=10&&!nftUnlocked){
-      nftUnlocked=true; localStorage.setItem('snakeNFT','1');
+      nftUnlocked=true;localStorage.setItem('snakeNFT','1');
       document.getElementById('nftBadge').classList.add('show');
     }
-    if(score%5===0){
-      clearInterval(loop);
-      loop=setInterval(tick,Math.max(55,130-score*4));
-    }
-    spawnFood(); updateUI();
-  } else { snake.pop(); }
+    if(score%5===0){clearInterval(loop);loop=setInterval(tick,Math.max(55,130-score*4));}
+    spawnFood();updateUI();
+  }else{snake.pop();}
 }
 
-async function endGame() {
-  clearInterval(loop); running=false;
-  const durationSec = Math.round((Date.now() - gameStartTime) / 1000);
+async function endGame(){
+  clearInterval(loop);running=false;
   updateLB();
-  setMsg('💀 Game Over ! Score : '+score+' | Best : '+highScore);
+  setMsg('💀 Game Over ! Score: '+score+' | Best: '+highScore);
   updateUI();
-  if (score > 0) await submitScoreOnChain(score, durationSec);
+  // writeContract.submit_score → génère consensus + LLM taunt sur GenLayer
+  if(score>0) await submitScoreOnChain(score);
 }
 
-// ═══════════════════════════════════════════════════════
-//  DRAW
-// ═══════════════════════════════════════════════════════
-function draw() {
+function draw(){
   ctx.clearRect(0,0,400,400);
-  ctx.fillStyle='#0d0d1a'; ctx.fillRect(0,0,400,400);
-  ctx.strokeStyle='#1a1a2e'; ctx.lineWidth=0.5;
+  ctx.fillStyle='#0d0d1a';ctx.fillRect(0,0,400,400);
+  ctx.strokeStyle='#1a1a2e';ctx.lineWidth=0.5;
   for(let i=0;i<=GRID;i++){
     ctx.beginPath();ctx.moveTo(i*SZ,0);ctx.lineTo(i*SZ,400);ctx.stroke();
     ctx.beginPath();ctx.moveTo(0,i*SZ);ctx.lineTo(400,i*SZ);ctx.stroke();
   }
-  ctx.fillStyle='#f59e0b'; ctx.shadowColor='#f59e0b'; ctx.shadowBlur=10;
-  ctx.beginPath();
-  ctx.arc(food.x*SZ+SZ/2,food.y*SZ+SZ/2,SZ/2-2,0,Math.PI*2);
-  ctx.fill(); ctx.shadowBlur=0;
+  ctx.fillStyle='#f59e0b';ctx.shadowColor='#f59e0b';ctx.shadowBlur=10;
+  ctx.beginPath();ctx.arc(food.x*SZ+SZ/2,food.y*SZ+SZ/2,SZ/2-2,0,Math.PI*2);
+  ctx.fill();ctx.shadowBlur=0;
   snake.forEach((s,i)=>{
     const r=1-i/snake.length;
     ctx.fillStyle=i===0?'#a78bfa':`rgba(109,40,217,${.3+r*.6})`;
     ctx.shadowColor=i===0?'#a78bfa':'transparent';
     ctx.shadowBlur=i===0?12:0;
     const p=i===0?1:2;
-    ctx.beginPath();
-    ctx.roundRect(s.x*SZ+p,s.y*SZ+p,SZ-p*2,SZ-p*2,3);
-    ctx.fill();
-  }); ctx.shadowBlur=0;
+    ctx.beginPath();ctx.roundRect(s.x*SZ+p,s.y*SZ+p,SZ-p*2,SZ-p*2,3);ctx.fill();
+  });ctx.shadowBlur=0;
   const ch=document.getElementById('dispChain').textContent;
-  ctx.fillStyle='#a78bfa'; ctx.font='bold 11px Arial'; ctx.fillText('Score: '+score,6,14);
-  ctx.fillStyle='#f59e0b';  ctx.fillText('Tokens: '+tokens,6,28);
-  ctx.fillStyle='#38bdf8';  ctx.fillText('On-chain: '+ch,6,42);
-  ctx.fillStyle='#7c3aed';  ctx.fillText('AI Validated',6,56);
+  ctx.fillStyle='#a78bfa';ctx.font='bold 11px Arial';ctx.fillText('Score: '+score,6,14);
+  ctx.fillStyle='#f59e0b';ctx.fillText('Tokens: '+tokens,6,28);
+  ctx.fillStyle='#38bdf8';ctx.fillText('On-chain: '+ch,6,42);
 }
 
-// ═══════════════════════════════════════════════════════
-//  UI
-// ═══════════════════════════════════════════════════════
 function setDir(x,y){
-  if(x===1&&dir.x===-1)return; if(x===-1&&dir.x===1)return;
-  if(y===1&&dir.y===-1)return; if(y===-1&&dir.y===1)return;
+  if(x===1&&dir.x===-1)return;if(x===-1&&dir.x===1)return;
+  if(y===1&&dir.y===-1)return;if(y===-1&&dir.y===1)return;
   dir={x,y};
 }
 document.addEventListener('keydown',e=>{
@@ -502,11 +470,9 @@ function log(m){
 function updateLB(){
   const a=wallet?wallet.slice(0,6)+'...'+wallet.slice(-4):'Joueur';
   const e=lb.find(x=>x.a===a);
-  if(!e)lb.push({a,s:highScore});
-  else if(highScore>e.s)e.s=highScore;
-  lb.sort((a,b)=>b.s-a.s); lb=lb.slice(0,5);
-  localStorage.setItem('snakeLB',JSON.stringify(lb));
-  renderLB();
+  if(!e)lb.push({a,s:highScore});else if(highScore>e.s)e.s=highScore;
+  lb.sort((a,b)=>b.s-a.s);lb=lb.slice(0,5);
+  localStorage.setItem('snakeLB',JSON.stringify(lb));renderLB();
 }
 function renderLB(){
   const el=document.getElementById('leaderboard');
@@ -519,9 +485,8 @@ function renderLB(){
     `<div class="lb-row"><span>${m[i]}</span><span class="lb-addr">${e.a}</span><span class="lb-score">${e.s}</span></div>`
   ).join('');
 }
-
-init(); draw(); renderLB();
-setMsg('Connecte ton wallet puis appuie sur Start ou 🤖 AI Challenge');
+init();draw();renderLB();
+setMsg('Connecte ton wallet puis appuie sur Start');
 </script>
 </body>
 </html>
